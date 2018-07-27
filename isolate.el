@@ -1,4 +1,4 @@
-;;; isolate.el --- Another surrounding helper
+;;; isolate.el --- Fully customizable, easy-to-use surrounding tool.
 
 ;;; Commentary:
 ;; 
@@ -172,8 +172,8 @@ Return LEFT-SEGMENT itself if not."
         (when (and (equal from left-segment)
                  (or (not condition)
                      (funcall condition left-segment)))
-            (throw 'return to)
-          left-segment)))))
+            (throw 'return to))))
+    left-segment))
 
 (defmacro isolate--setup-marker (left-beg left-end right-beg righ-end)
   "Helper for setting up markers."
@@ -270,9 +270,11 @@ Hit C-c C-c when finished."
       (progn
         (isolate--add-setup-marker)
         (isolate--add-setup)
-        (add-hook 'post-command-hook #'isolate--add t t))
+        (add-hook 'post-command-hook #'isolate--add t t)
+        (advice-add 'message :around #'isolate--add-echo-advice))
     (isolate--add-cleanup)
-    (remove-hook 'post-command-hook #'isolate--add t))
+    (remove-hook 'post-command-hook #'isolate--add t)
+    (advice-remove 'message #'isolate--add-echo-advice))
   (isolate--disable-autoparens))
 
 
@@ -298,12 +300,18 @@ Use `isolate-quick-add' for interactive use."
 
 ;;;; Helper
 
+(defun isolate--add-echo-advice (old-func &rest arg)
+  "Indicate user that add mode is active. OLD-FUNC is `message'. ARG are args."
+  (funcall old-func "[ ADD ]   [ Abort: C-c q ] [ Finish: C-c C-c ]\n\n%s" (apply 'format arg)))
+
+
 (defun isolate--add-setup-marker ()
   "Setup the markers."
-  (isolate--setup-marker (region-beginning)
-                         (region-beginning)
-                         (region-end)
-                         (region-end)))
+  (unless isolate--changing
+    (isolate--setup-marker (region-beginning)
+                           (region-beginning)
+                           (region-end)
+                           (region-end))))
 
 (defun isolate--add-setup ()
   "Setup highlight and insert. Have to run after `isolate--xxx-setup-marker'."
@@ -404,7 +412,8 @@ Don't forget to reset this when exit `isolate-delete-mode'.")
 ;;;;; Quick delete
 
 (defun isolate-quick-delete (left-segment)
-  "Delete surrouding matched by LEFT-SEGMENT."
+  "Delete surrouding matched by LEFT-SEGMENT.
+Return t if match, nil if no match."
   (interactive "cEnter left segment")
   ;; match & delete
   (if (isolate--search-segment
@@ -413,8 +422,10 @@ Don't forget to reset this when exit `isolate-delete-mode'.")
          (char-to-string left-segment))))
       (progn
         (isolate--replace-with "" isolate--left-beg isolate--left-end)
-        (isolate--replace-with "" isolate--right-beg isolate--right-end))
-    (message "No balanced match"))
+        (isolate--replace-with "" isolate--right-beg isolate--right-end)
+        t)
+    (message "No balanced match")
+    nil)
   
   ;; cleanup
   (isolate--delete-cleanup-overlay))
@@ -423,31 +434,43 @@ Don't forget to reset this when exit `isolate-delete-mode'.")
 
 (defalias 'isolate-long-delete #'isolate-delete-mode)
 
+(defun isolate-delete-search ()
+  "Search for pair to delete."
+  (interactive)
+  
+  (setq isolate--delete-left-segment
+        (completing-read "Enter left segment: "
+                         nil
+                         ;; TODO figure out hist
+                         nil nil nil))
+  (setq isolate--search-history
+        (delete isolate--delete-left-segment isolate--search-history))
+  (push isolate--delete-left-segment isolate--search-history)
+  (setq isolate--search-success
+        (isolate--search-segment isolate--delete-left-segment))
+  (isolate--delete-update-highlight))
+
 (define-minor-mode isolate-delete-mode
   "Delete surrounding by entering regexp."
   :keymap (let ((map (make-sparse-keymap)))
             (define-key map (kbd "C-c p") #'isolate-search-up)
             (define-key map (kbd "C-c n") #'isolate-search-down)
+            (define-key map (kbd "C-c s") #'isolate-delete-search)
             (define-key map (kbd "C-c C-c") #'isolate-delete-finish)
             (define-key map (kbd "C-C q") #'isolate-delete-abort)
             map)
   (if isolate-delete-mode
       (progn
-        (setq isolate--delete-left-segment
-              (completing-read "Enter left segment: "
-                               nil
-                               nil nil nil))
-        (setq isolate--search-history
-              (delete isolate--delete-left-segment isolate--search-history))
-        (push isolate--delete-left-segment isolate--search-history)
-        (setq isolate--search-success
-              (isolate--search-segment isolate--delete-left-segment))
-        (isolate--delete-update-highlight))
+        (isolate-delete-search)
+        (advice-add 'message :around #'isolate--delete-echo-advice))
     ;; cleanup
     (isolate--delete-cleanup-overlay)
     (setq isolate--search-level 1
           isolate--delete-left-segment nil
-          isolate--search-success nil)))
+          isolate--search-success (if isolate--changing
+                                      isolate--search-success
+                                    nil))
+    (advice-remove 'message #'isolate--delete-echo-advice)))
 
 (defun isolate-delete-finish ()
   "Exit `isolate-delete-mode'."
@@ -625,10 +648,9 @@ COUNT is like COUNT in `search-backward-regexp'."
 
 ;;;; Helper
 
-;; TODO
-(defun isolate--delete-add-escape (str)
-  "Add escape (\"\\\") for STR and return it."
-  (replace-regexp-in-string "\\" "\\\\" str))
+(defun isolate--delete-echo-advice (old-func &rest arg)
+  "Indicate user that delete mode is active. OLD-FUNC is `message'. ARG are args."
+  (funcall old-func "[ DELETE ]   [ Abort: C-c q ] [ Finish: C-c C-c ] [ New match: C-c s ] [ Up: C-c p] [ Down: C-c n ]\n\n%s" (apply 'format arg)))
 
 (defun isolate--delete-cleanup-overlay ()
   "Cleanup overlay."
@@ -646,6 +668,38 @@ COUNT is like COUNT in `search-backward-regexp'."
   (overlay-put
    (setq isolate--right-overlay (make-overlay isolate--right-beg isolate--right-end))
    'face 'highlight))
+
+;;; Change
+
+;;;; Variable
+
+(defvar-local isolate--changing nil
+  "If this is t, `isolate--add-setup-marker' doesn't alter markers.")
+
+;;;; Command
+
+(defun isolate-quick-change (from to)
+  "Change FROM to TO."
+  (interactive "cChange from\ncChange to")
+  (let ((isolate--changing t))
+    (when (isolate-quick-delete from)
+      (isolate-quick-add to))))
+
+(defun isolate--change-delete-advice (&rest _)
+  "Start adding. Advice to `isolate-delete-finish'."
+  (interactive)
+  (setq isolate--changing nil)
+  (when isolate--search-success
+    (let ((isolate--changing t))
+      (advice-remove 'isolate-delete-finish #'isolate--change-delete-advice)
+      (isolate-add-mode))))
+
+(defun isolate-long-change ()
+  "Change matching pair of user entered regexp to user enterd pair."
+  (interactive)
+  (setq isolate--changing t)
+  (advice-add 'isolate-delete-finish :after #'isolate--change-delete-advice)
+  (isolate-delete-mode))
 
 ;;; Provide
 
