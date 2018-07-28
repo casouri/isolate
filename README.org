@@ -5,6 +5,23 @@ It supports adding, deleting and changing pairs.
 
 I took the idea of regex from [[https://github.com/tslilc/siege-mode][siege-mode]], very cool package!
 
+* Table of Countents                                                    :TOC:
+
+- [[#why-isolateel][Why isolate.el?]]
+- [[#spotlight][Spotlight]]
+  - [[#add][Add]]
+  - [[#delete][Delete]]
+  - [[#change][Change]]
+- [[#install][Install]]
+- [[#usage][Usage]]
+  - [[#segmentation][Segmentation]]
+  - [[#quick-command-shortcuts][Quick command shortcuts]]
+- [[#customizaion][Customizaion]]
+  - [[#rule-list][Rule list]]
+  - [[#delete-functions-extended-rule-list][Delete function's extended rule list.]]
+  - [[#shortcuts-for-quick-commands][Shortcuts for quick commands]]
+- [[#contribution][Contribution]]
+
 * Why isolate.el?
 
 The most important feature of =isolate.el= is customization.
