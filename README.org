@@ -61,20 +61,23 @@ is alter *three* rule lists.
 
 Change is simply the combination of delete and add.
 
+
+* Install
+
+=isolate= is not in melpa,
+you need to intall and load manually or by quelpa.
+
 * Usage
 
 There are six commands avaliable:
 
 =isolate-quick-add=
-
-=isolate-quick-delete=
-
-=isolate-quick-change=
-
 =isolate-long-add=
 
+=isolate-quick-delete=
 =isolate-long-delete=
 
+=isolate-quick-change=
 =isolate-long-change=
 
 Quick commads asks for a key and surround region with it.
