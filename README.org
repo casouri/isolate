@@ -28,7 +28,7 @@ The most important feature of =isolate.el= is customization.
 All the fancy matching and shortcuts are actually 
 implemented by customization rather than by adding code. 
 
-While being very powerful, customizationg remains very easy: all you need to do
+While being very powerful, customizationg remains easy to configure: all you need to do
 is alter *three* rule lists.
 
 
