@@ -58,7 +58,7 @@ is alter *three* rule lists.
 
 ** Change
 
-Change is simple the combination of delete and add.
+Change is simply the combination of delete and add.
 
 * Usage
 
