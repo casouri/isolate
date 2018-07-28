@@ -1,11 +1,11 @@
-;;; isolate.el --- Fully customizable, easy-to-use surrounding tool.
+;;; isolate.el --- Surrounding with powerful yet easy-to-use customization system.
 
 ;;; Commentary:
 ;; 
 
-
 ;;; Code:
 ;;
+
 
 ;;; Custom
 
@@ -66,7 +66,7 @@ If 'condition exists and returns nil, the shortcut will be ignored.")
     ((to-left . "<") (to-right . ">"))
     ((from . "<\\([^ ]+\\).*>") (to-right . (lambda (left) (format "</%s>" (match-string 1 left)))))
     ((to-left . "\\{begin}") (to-right . "\\{end}"))
-    ((from . "org-src") (to-left . "\n#+BEGIN_SRC\n") (to-right . "\n#+END_SRC\n"))
+    ((from . "org-src") (to-left . "#+BEGIN_SRC\n") (to-right . "#+END_SRC\n"))
     )
   "Matching pairs.
 Each element is an alist with four possible keys: 'from, 'to-left, to-right and condition.
@@ -162,18 +162,21 @@ Return LEFT-SEGMENT itself if not."
 (defmacro isolate--setup-marker (left-beg left-end right-beg righ-end)
   "Helper for setting up markers."
   `(save-excursion
-     (goto-char ,left-beg)
-     (setq isolate--left-beg (point-marker))
+     ;; I changed goto-char to set-mark,
+     ;; because evil's line selection
+     ;; prevents point from moving...
+     (set-marker (setq isolate--left-beg (point-marker))
+               ,left-beg)
      
-     (goto-char ,left-end)
-     (setq isolate--left-end (point-marker))
+     (set-marker (setq isolate--left-end (point-marker))
+               ,left-end)
      (set-marker-insertion-type isolate--left-end t)
      
-     (goto-char ,right-beg)
-     (setq isolate--right-beg (point-marker))
+     (set-marker (setq isolate--right-beg (point-marker))
+               ,right-beg)
      
-     (goto-char ,righ-end)
-     (setq isolate--right-end (point-marker))
+     (set-marker (setq isolate--right-end (point-marker))
+               ,righ-end)
      (set-marker-insertion-type isolate--right-end t)))
 
 
