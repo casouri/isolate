@@ -72,28 +72,37 @@ If 'condition exists and returns nil, the shortcut will be ignored.")
 Each element is an alist with four possible keys: 'from, 'to-left, to-right and condition.
 Only ('from or 'to-left) and 'to-right are required.
 
-Value of 'from is match by user input, it is a regexp string.
-\"^\" and \"$\" are added automatically to it before matching.
-Also don't forget regexp escapes.
+'right is required, one from 'from and 'to-left is required,
+'condition is optional.
 
-Value of 'condition is a function that takes a string
-which is the left segement user inserted.
-How or whether to use it is depend on you.
-If condition exists, isolate only match the pair
-when condition function returns t.
-This function can be used to check major mode or some special rules.
+1. If only 'to-left, and it equal to user input,
+and matches and condition passes,
+'to-left is used as left of pair,
+'to-right is used as right of pair.
 
-When 'from matches or 'to-left completely equal to user input,
-and also condition passes,
-value of 'to-left and 'to-right defines left and right segments.
-If 'to-left is ommited,
-it is considered to be the same as the string 'from matched from buffer.
+2. If only 'from, and the regexp of from matches user input,
+user-input is used as left of pair
+and 'to-right is used as right of pair.
 
-Either 'to-left and 'to-right can be a function that returns a string.
-The function takes user input as argument.
-Because isolate uses `string-match' to match user input with 'from,
-you can extract groups from left segment by (match-string num user-input).
-`user-input' is the name of the argument.")
+3. If both 'from and 'to-left exists,
+'from as regexp is used to match user-input,
+if it matches, 'to-left is used as left of pair
+and 'to-right is used as right of pair.
+
+In addition, 'to-left and 'to-right can be a function
+that takes user input as argument and return a string.
+
+If they are functions, and you have a regex 'from,
+you can use (match-string num user-input) to get
+regexp matched groups.
+
+'condition, if exist, should be a function
+that takes user input as argument and return a boolean.
+You can use it to check major modes, etc.
+
+A word of 'from:
+\"^\" and \"$\" are added automatically to from before matching.
+Also don't forget regexp escapes.")
 
 (defvar isolate-setup-hook nil
   "This hook is ran after `isolate--add-setup'.
@@ -396,32 +405,8 @@ For actual command use `isolate-quick-add' or `isolate-add-mode'."
     ((from . "<\\([^ ]+\\).*>")
      (to-left . (lambda (user-input) (format "<%s *.*>" (match-string 1 user-input))))
      (to-right . (lambda (user-input) (format "</%s>" (match-string 1 user-input))))))
-  "This is an alist for extended pairs for delete function.
-Each element is an alist represents a shortcut.
-They have four possible keys: 'from, 'to-left, 'to-right and 'condition.
-
-'from is a regexp string that matches user input.
-Like `isolate-pair-list', \"^\" and \"$\" are added to 'from
-for sole match.
-
-'condition is a function, just like 'condition in `isolate-pair-list',
-it takes the user input (same to 'from's value).
-If it exist and return nil, the shorcut will be ignored.
-
-If 'from matches and 'condition passes,
-'to-left and 'to-right will be used for searching the pair in buffer.
-
-If 'to-left is ommited, it is considerd the same as 'from.
-
-Either of them can be a regexp string or a function that returns a regexp) string.
-The function should take the user entered string as argument.
-Like `isolate-pair-list', your can use (match-string num user-input)
-to match part of user-input.
-
-As for program logic, 'to will then be matched by 'left-regexp
-if it exists, or compared with equal with 'left,
-in `isolate-pair-list', if they exactly equal to each other,
-and condition passes, the corresponding 'right will be used.")
+  "Rule list.
+Detail see `isolate-pair-list'")
 
 
 (defvar-local isolate--search-level 1
