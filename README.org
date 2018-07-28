@@ -35,7 +35,6 @@ implemented by customization rather than by adding code.
 While being very powerful, customizationg remains easy to configure: all you need to do
 is alter *three* rule lists.
 
-
 * Spotlight
   
 ** Add
@@ -82,7 +81,6 @@ is alter *three* rule lists.
 
 Change is simply the combination of delete and add.
 
-
 * Install
 
 =isolate= is not in melpa,
@@ -102,6 +100,22 @@ apply the change with =C-c C-c=
 
 If you use evil, I suggest binding quick commands to =s= operators
 and long commands to =S= operators.
+
+*** Long add
+    
+| C-c a   | Go to beginning of left side |
+| C-c e   | Go to end of left side       |
+| C-c C-c | Finish edit                  |
+| C-c q   | Abort edit                   |
+
+*** Long delete
+
+In minibuffer:
+
+| C-p | Match outter pair |
+| C-n | Match inner pair  |
+| RET | Finish edit       |
+| C-g | Abort edit        |
 
 ** Segmentation
 
@@ -130,7 +144,6 @@ surrounded-text
 
 =)=, =]=, =}= and =>= are translated to pair with space:
 =( surrounded-text )=
-
 
 * Customizaion
 
@@ -278,7 +291,6 @@ Each shortcut have three possible keys: 'from, 'to and 'condition.
 'condition is optional.
 If 'condition exists and returns nil, the shortcut will be ignored.")
 #+END_SRC
-
 
 * Contribution
 
