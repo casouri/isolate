@@ -75,7 +75,7 @@ There are six commands avaliable:
 | =isolate-quick-delete= | =isolate-long-delete= |
 | =isolate-quick-change= | =isolate-long-change= |
 
-Quick commads asks for a key and surround region with it.
+Quick commads asks for a key and add/delete/change the pair matches to it.
 Long commands allows you to make more complex edits and
 apply the change with =C-c C-c=
 
