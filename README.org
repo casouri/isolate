@@ -2,15 +2,16 @@
 
 This package provides a powerful surrounding tool.
 It supports adding, deleting and changing pairs.
+
 I took the idea of regex from [[https://github.com/tslilc/siege-mode][siege-mode]], very cool package!
 
 * Why isolate.el?
 
-The important feature of =isolate.el= is customization.
-All fancy matching and shortcuts are implemented by customization,
-rather than adding code. 
+The most important feature of =isolate.el= is customization.
+All the fancy matching and shortcuts are actually 
+implemented by customization rather than by adding code. 
 
-In the mean time, customizationg is very easy: all you need to do
+While being very powerful, customizationg remains very easy: all you need to do
 is alter *three* rule lists.
 
 
