@@ -385,7 +385,7 @@ For actual command use `isolate-quick-add' or `isolate-add-mode'."
                 nil))
         (setq isolate--electric-pair
               (if (bound-and-true-p electric-pair-mode)
-                  (progn (elctric-pair-mode -1) t)
+                  (progn (electric-pair-mode -1) t)
                 nil)))
     (when (bound-and-true-p isolate--evil)
       (evil-mode))
