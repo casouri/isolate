@@ -3,22 +3,52 @@
 This package provides a powerful surrounding tool.
 It supports adding, deleting and changing pairs.
 
-Customization in =isolate.el= is verty powerful (full-featured),
-yet still very easy to configure -- there are only *four* rule lists to alter!
+* Why isolate.el?
+
+The important feature of =isolate.el= is customization.
+All fancy matching and shortcuts are implemented by customization,
+rather than adding code. 
+
+In the mean time, customizationg is very easy: all you need to do
+is alter *three* rule lists.
+
 
 * Spotlight
   
-Functionalities below are configured completly by customizing,
-except the segmentation with ",", that's nativly supported.
-
 ** Add
+   
+*features:*
+
+- quick add (single character) and long add
+
+- regexp match
+
+- segmentation by ","
+
+- surround with/without space in quick add
 
 [[./img/isolate-add-1.gif]]
+
 [[./img/isolate-add-2.gif]]
 
 ** Delete
+   
+*features:*
+
+- regexp match
+
+- pre configured regexp 
+
+  - =<t>= -> any html tag
+
+  - =<xxx>= -> html tag with name xxx
+
+- pair depth change
+  
+- delete with/without space in quick delete
 
 [[./img/isolate-delete-1.gif]]
+
 [[./img/isolate-delete-2.gif]]
 
 ** Change
