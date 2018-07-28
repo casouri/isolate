@@ -265,11 +265,12 @@ Hit C-c C-c when finished."
         (isolate--add-setup-marker)
         (isolate--add-setup)
         (add-hook 'post-command-hook #'isolate--add-hook t t)
-        (advice-add 'message :around #'isolate--add-echo-advice))
+        (advice-add 'message :around #'isolate--add-echo-advice)
+        (isolate--disable-autoparens))
     (isolate--add-cleanup)
     (remove-hook 'post-command-hook #'isolate--add-hook t)
-    (advice-remove 'message #'isolate--add-echo-advice))
-  (isolate--disable-autoparens))
+    (advice-remove 'message #'isolate--add-echo-advice)
+    (isolate--disable-autoparens t)))
 
 (defun isolate-goto-beginning ()
   "Go to beginning of left."
@@ -317,7 +318,8 @@ For actual command use `isolate-quick-add' or `isolate-add-mode'."
          (actual-left (car con))
          (right (cdr con)))
     (unless (equal left actual-left)
-      (isolate--replace-with actual-left isolate--left-beg isolate--left-end))
+      (isolate--replace-with actual-left isolate--left-beg isolate--left-end)
+      (goto-char isolate--left-end))
     (isolate--replace-with right isolate--right-beg isolate--right-end)))
 
 
@@ -367,9 +369,10 @@ For actual command use `isolate-quick-add' or `isolate-add-mode'."
     (while (search-forward isolate-separator isolate--left-end t)
       (replace-match ""))))
 
-(defun isolate--disable-autoparens ()
-  "Disable paren auto-completion in `isolate-add-mode'."
-  (if isolate-add-mode
+(defun isolate--disable-autoparens (&optional enable)
+  "Disable paren auto-completion in `isolate-add-mode'.
+If ENABLE non-nil, reenable them."
+  (if (not enable)
       (progn
         (setq isolate--evil
               (if (bound-and-true-p evil-mode)
@@ -414,10 +417,6 @@ Detail see `isolate-pair-list'")
 Starts from 1, passed to search function as COUNT.
 Don't forget to reset to 1 when exit `isolate-delete-mode'.")
 
-(defvar-local isolate--delete-left-segment nil
-  "The left segment user entered in `isolate-delete-mode' for deletion.
-Don't forget to reset this when exit `isolate-delete-mode'.")
-
 (defvar isolate--search-history nil
   "History of long delete(change) search.")
 
@@ -448,83 +447,136 @@ Return t if match, nil if no match."
 
 ;;;;; Long delete
 
-(defalias 'isolate-long-delete #'isolate-delete-mode)
 
 (defun isolate-delete-search ()
   "Search for pair to delete."
   (interactive)
   
-  (setq isolate--delete-left-segment
+  (setq isolate--delete-left
         (completing-read "Enter left segment: "
                          nil
                          ;; TODO figure out hist
                          nil nil nil))
   (setq isolate--search-history
-        (delete isolate--delete-left-segment isolate--search-history))
-  (push isolate--delete-left-segment isolate--search-history)
+        (delete isolate--delete-left isolate--search-history))
+  (push isolate--delete-left isolate--search-history)
   (when (setq isolate--search-success
-              (isolate--search-pair isolate--delete-left-segment))
+              (isolate--search-pair isolate--delete-left))
     (isolate--delete-update-highlight)))
 
-(define-minor-mode isolate-delete-mode
+(defvar isolate--delete-minibuffer-map (let ((map minibuffer-local-map))
+                                         (define-key map (kbd "C-p") #'isolate-search-up)
+                                         (define-key map (kbd "C-n") #'isolate-search-down)
+                                         (define-key map (kbd "C-M-p") #'isolate--delete-hook)
+                                         map)
+  "The keymap used in `isolate-long-delete'.")
+
+(defvar isolate--delete-main-buffer nil
+  "The buffer that edit should apply to.")
+
+(defmacro isolate--delete-with-left (var &rest form)
+  "Evaluate FORM with VAR as the user inserted regexp."
+  `(when (>= (point-max) (length "Left regexp: "))
+     (let ((,var (buffer-substring-no-properties (1+ (length "Left regexp: ")) (point-max))))
+       ,@form)))
+
+(defun isolate--delete-hook ()
+  "Function run in `post-command-hook'."
+  ;; TODO add check for minibuffer window
+  (interactive)
+  (isolate--delete-with-left
+   left
+   (with-current-buffer isolate--delete-main-buffer
+     (when (setq isolate--search-success
+                 (isolate--search-pair left))
+       (isolate--delete-update-highlight)))))
+
+(defvar isolate--delete-minibuffer-hook-stage 0
+  "Recode stage for `isolate--delete-minibuffer-hook'.")
+
+(defun isolate--delete-minibuffer-hook ()
+  "Stage 0: add self to `minibuffer-setup-hook'.
+
+Stage 1: remove self from `minibuffer-setup-hook', add self to `post-self-insert-hook'.
+
+Stage 2: remove self from `post-self-insert-hook', add `isolate--delete-hook' to `post-command-hook'.
+
+Stage 3: remove `isolate--delete-hook' from `post-command-hook'."
+  (pcase isolate--delete-minibuffer-hook-stage
+    (0 (setq isolate--delete-minibuffer-hook-stage 1)
+       (add-hook 'minibuffer-setup-hook #'isolate--delete-minibuffer-hook))
+    (1 (setq isolate--delete-minibuffer-hook-stage 2)
+       (remove-hook 'minibuffer-setup-hook #'isolate--delete-minibuffer-hook)
+       (add-hook 'post-command-hook #'isolate--delete-hook))
+    (2 (setq isolate--delete-minibuffer-hook-stage 0)
+       (remove-hook 'post-command-hook #'isolate--delete-hook))))
+
+
+(defun isolate-long-delete ()
   "Delete surrounding by entering regexp."
-  :keymap (let ((map (make-sparse-keymap)))
-            (define-key map (kbd "C-c p") #'isolate-search-up)
-            (define-key map (kbd "C-c n") #'isolate-search-down)
-            (define-key map (kbd "C-c s") #'isolate-delete-search)
-            (define-key map (kbd "C-c C-c") #'isolate-delete-finish)
-            (define-key map (kbd "C-C q") #'isolate-delete-abort)
-            map)
-  (if isolate-delete-mode
-      (progn
-        (isolate-delete-search)
-        (advice-add 'message :around #'isolate--delete-echo-advice))
-    ;; cleanup
-    (isolate--delete-cleanup-overlay)
-    (setq isolate--search-level 1
-          isolate--delete-left-segment nil
-          isolate--search-success (if isolate--changing
-                                      isolate--search-success
-                                    nil))
-    (advice-remove 'message #'isolate--delete-echo-advice)))
+  (interactive)
+  (setq isolate--delete-main-buffer (current-buffer))
+  (let ((minibuffer-local-map isolate--delete-minibuffer-map))
+    (condition-case nil
+        (progn
+          (setq isolate--delete-minibuffer-hook-stage 0)
+          (isolate--delete-minibuffer-hook)
+          (isolate--disable-autoparens)
+          (read-string "Left regexp: ")
+          (isolate--delete-minibuffer-hook) ; cleanup
+          (isolate--disable-autoparens t)
+          (isolate-delete-finish)
+          (isolate--delete-cleanup))
+      ((quit error)
+       (isolate--delete-minibuffer-hook) ;cleanup
+       (isolate--disable-autoparens t)
+       (isolate--delete-cleanup)))))
 
 (defun isolate-delete-finish ()
-  "Exit `isolate-delete-mode'."
+  "Apply edit."
   (interactive)
   (when isolate--search-success
     (isolate--replace-with "" isolate--left-beg isolate--left-end)
-    (isolate--replace-with "" isolate--right-beg isolate--right-end))
-  (isolate-delete-mode -1))
+    (isolate--replace-with "" isolate--right-beg isolate--right-end)))
 
-(defun isolate-delete-abort ()
-  "Exit `isolate-delete-mode' and don't delete."
-  (interactive)
-  (isolate-delete-mode -1))
+(defun isolate--delete-cleanup ()
+  "Cleanup."
+  (isolate--delete-cleanup-overlay)
+  (setq isolate--search-level 1
+        isolate--search-success (if isolate--changing
+                                    isolate--search-success
+                                  nil)))
 
 (defun isolate-search-up ()
   "Search one level of matching pairs up."
   (interactive)
-  (setq isolate--search-level (1+ isolate--search-level))
-  (if (isolate--search-pair isolate--delete-left-segment isolate--search-level)
-      (progn
-        (isolate--delete-update-highlight)
-        (message "Up one level"))
-    ;; failed, set level back
-    (setq isolate--search-level (1- isolate--search-level))
-    (message "No further match")))
+  (isolate--delete-with-left
+   left
+   (with-current-buffer isolate--delete-main-buffer
+    (setq isolate--search-level (1+ isolate--search-level))
+    (if (isolate--search-pair left isolate--search-level)
+        (progn
+          (isolate--delete-update-highlight)
+          (message "Up one level"))
+      ;; failed, set level back
+      (setq isolate--search-level (1- isolate--search-level))
+      (message "No further match")))))
 
 (defun isolate-search-down ()
   "Search one level of matching pairs down."
   (interactive)
-  (setq isolate--search-level (1- isolate--search-level))
-  (if (and (>= isolate--search-level 1)
-           (isolate--search-pair isolate--delete-left-segment isolate--search-level))
-      (progn
-        (isolate--delete-update-highlight)
-        (message "Down one level"))
-    ;; failed, set level back
-    (setq isolate--search-level (1+ isolate--search-level))
-    (message "No furher match")))
+  (isolate--delete-with-left
+   left
+   (with-current-buffer isolate--delete-main-buffer
+     (setq isolate--search-level (1- isolate--search-level))
+     (if (and (>= isolate--search-level 1)
+              (isolate--search-pair left isolate--search-level))
+         (progn
+           (isolate--delete-update-highlight)
+           (message "Down one level"))
+       ;; failed, set level back
+       (setq isolate--search-level (1+ isolate--search-level))
+       (message "No furher match")))))
 
 ;;;; Function
 
@@ -553,14 +605,16 @@ Return t if match, nil if no match."
      (setq right-beg (match-beginning 0)
            right-end (match-end 0))))
 
-(defun isolate--find-balance-pair (left-regexp right-regexp &optional point count)
+(defun isolate--simple-balance-pair (left-regexp right-regexp &optional point count)
   "Find the COUNT'th balanced matching pair (LEFT-REGEXP & RIGHT-REGEXP)
 centered around POINT.
 Count starts from 1.
 Nil or omitted COUNT means 0.
 Nil or omitted POINT means (point).
 
-Return t if successed, nil if failed."
+Return t if successed, nil if failed.
+
+This is simple version because left-regexp = right-regexp."
   (save-excursion
     (catch 'return
       (let ((count (or count 1))
@@ -572,42 +626,74 @@ Return t if successed, nil if failed."
             ;; used in step 2 when handels COUNT
             old-right-count
             new-right-count)
-        (setq origin-point (goto-char (or point (point))))
-        (isolate--jump-backward)
-        ;; left count is 1, right-count is 0
-        ;; now point is at the beginning of the first left match
-        ;; jump left until left-count = 1 + right-count
-        (while (let ((left-count (isolate--count-match left-regexp left-beg origin-point))
-                     (right-count (isolate--count-match right-regexp left-beg origin-point)))
-                 (< (- left-count right-count) 1))
+        (dotimes (var count)
           (isolate--jump-backward))
-        ;; point is at the beginning of correct left match
-        ;; now handle COUNT
-        ;; nothing hapends if count <= 1.
-        (setq old-right-count (isolate--count-match right-regexp left-beg origin-point))
-        (setq new-right-count old-right-count)
-        (while (> count 1)
+        (dotimes (var count)
+          (isolate--jump-forward))
+        (isolate--setup-marker left-beg
+                                 left-end
+                                 right-beg
+                                 right-end)
+        ;; return t
+        t))))
+
+(defun isolate--find-balance-pair (left-regexp right-regexp &optional point count)
+  "Find the COUNT'th balanced matching pair (LEFT-REGEXP & RIGHT-REGEXP)
+centered around POINT.
+Count starts from 1.
+Nil or omitted COUNT means 0.
+Nil or omitted POINT means (point).
+
+Return t if successed, nil if failed."
+  (if (equal left-regexp right-regexp)
+      (isolate--simple-balance-pair left-regexp right-regexp point count)
+    (save-excursion
+      (catch 'return
+        (let ((count (or count 1))
+              left-beg
+              left-end
+              right-beg
+              right-end
+              origin-point
+              ;; used in step 2 when handels COUNT
+              old-right-count
+              new-right-count)
+          (setq origin-point (goto-char (or point (point))))
+          (isolate--jump-backward)
+          ;; left count is 1, right-count is 0
+          ;; now point is at the beginning of the first left match
+          ;; jump left until left-count = 1 + right-count
+          (while (let ((left-count (isolate--count-match left-regexp left-beg origin-point))
+                       (right-count (isolate--count-match right-regexp left-beg origin-point)))
+                   (< (- left-count right-count) 1))
+            (isolate--jump-backward))
+          ;; point is at the beginning of correct left match
+          ;; now handle COUNT
+          ;; nothing hapends if count <= 1.
+          (setq old-right-count (isolate--count-match right-regexp left-beg origin-point))
+          (setq new-right-count old-right-count)
+          (while (> count 1)
             (isolate--jump-backward)
             (setq new-right-count (isolate--count-match right-regexp left-beg origin-point))
             (setq count (+ count (- new-right-count old-right-count 1)))
             (setq old-right-count new-right-count))
-        ;; it's time to find right match.
-        ;; setup right-beg and righ-end
-        (isolate--jump-forward)
-        ;; jump right until balanced
-        (while (let ((left-count (isolate--count-match left-regexp left-beg right-beg))
-                     (right-count (isolate--count-match right-regexp left-end right-end)))
-                 (> left-count right-count))
-          (isolate--jump-forward))
-        (when (< right-beg origin-point)
-          (throw 'return nil))
-        ;; done! Now it's balanced!
-        (isolate--setup-marker left-beg
-                               left-end
-                               right-beg
-                               right-end)
-        ;; return t
-        t))))
+          ;; it's time to find right match.
+          ;; setup right-beg and righ-end
+          (isolate--jump-forward)
+          ;; jump right until balanced
+          (while (let ((left-count (isolate--count-match left-regexp left-beg right-beg))
+                       (right-count (isolate--count-match right-regexp left-end right-end)))
+                   (> left-count right-count))
+            (isolate--jump-forward))
+          (when (< right-beg origin-point)
+            (throw 'return nil))
+          ;; done! Now it's balanced!
+          (isolate--setup-marker left-beg
+                                 left-end
+                                 right-beg
+                                 right-end)
+          ;; return t
+          t)))))
 
 (defun isolate--search-pair (left &optional count)
   "Seach COUNT'th LEFT and matching right segment.
@@ -696,7 +782,7 @@ COUNT is like COUNT in `search-backward-regexp'."
   (interactive)
   (setq isolate--changing t)
   (advice-add 'isolate-delete-finish :after #'isolate--change-delete-advice)
-  (isolate-delete-mode))
+  (isolate-long-delete))
 
 ;;; Provide
 
