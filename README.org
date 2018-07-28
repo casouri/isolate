@@ -2,6 +2,7 @@
 
 This package provides a powerful surrounding tool.
 It supports adding, deleting and changing pairs.
+I took the idea of regex from [[https://github.com/tslilc/siege-mode][siege-mode]], very cool package!
 
 * Why isolate.el?
 
@@ -22,6 +23,8 @@ is alter *three* rule lists.
 - quick add (single character) and long add
 
 - regexp match
+  
+- regexp replace
 
 - segmentation by ","
 
@@ -30,6 +33,8 @@ is alter *three* rule lists.
 [[./img/isolate-add-1.gif]]
 
 [[./img/isolate-add-2.gif]]
+
+[[./img/isolate-add-3.gif]]
 
 ** Delete
    
@@ -54,3 +59,213 @@ is alter *three* rule lists.
 ** Change
 
 Change is simple the combination of delete and add.
+
+* Usage
+
+There are six commands avaliable:
+
+=isolate-quick-add=
+
+=isolate-quick-delete=
+
+=isolate-quick-change=
+
+=isolate-long-add=
+
+=isolate-long-delete=
+
+=isolate-long-change=
+
+Quick commads asks for a key and surround region with it.
+Long commands allows you to make more complex edits and
+apply the change with =C-c C-c=
+
+If you use evil, I suggest binding quick commands to =s= operators
+and long commands to =S= operators.
+
+** Segmentation
+
+You can segment your input with a special separator (default =,=).
+=isolate= inverses the order of segments on the right side:
+
+#+BEGIN_SRC
+1,2,3 -> 321
+#+END_SRC
+
+A very good use case is line surrounding:
+
+#+BEGIN_SRC
+(,RET -> RET)
+#+END_SRC
+
+which looks like:
+
+#+BEGIN_SRC emacs-lisp
+(
+surrounded-text
+)
+#+END_SRC
+
+** Quick command shortcuts
+
+=)=, =]=, =}= and =>= are translated to pair with space:
+=( surrounded-text )=
+
+
+* Customizaion
+
+The biggest part!
+
+** Rule list
+
+The matching rule is in =isolate-pair-list=.
+=isolate= try to match user input whth a pair in this list.
+
+*How does isolate uses this rule list:*
+
+For add functions, isolates record user input (the left side)
+calculates the right side, insert right side and the end of region.
+
+The calculating part is where the rule list apply.
+=isolate= uses the user input to match each "pair" in the
+rule list, and outputs a left and right side string.
+
+There are three ways to match left side and gets a pair,
+as described in the documentation below.
+
+If the user input doesn't match anything, =isolate=
+simply uses it as-is.
+
+Here is the default value and documentation of it:
+
+#+BEGIN_SRC emacs-lisp
+(defvar isolate-pair-list
+  '(((to-left . "`") (to-right . "'") (condition . (lambda (_) (if (equal major-mode 'emacs-lisp-mode) t nil))))
+    ((to-left . "(") (to-right . ")"))
+    ((to-left . "[") (to-right . "]"))
+    ((to-left . "{") (to-right . "}"))
+    ((to-left . "<") (to-right . ">"))
+    ((from . "<\\([^ ]+\\).*>") (to-right . (lambda (left) (format "</%s>" (match-string 1 left)))))
+    ((to-left . "\\{begin}") (to-right . "\\{end}"))
+    ((from . "org-src") (to-left . "#+BEGIN_SRC\n") (to-right . "#+END_SRC\n"))
+    )
+  "Matching pairs.
+Each element is an alist with four possible keys: 'from, 'to-left, to-right and condition.
+Only ('from or 'to-left) and 'to-right are required.
+
+'right is required, one from 'from and 'to-left is required,
+'condition is optional.
+
+1. If only 'to-left, and it equal to user input,
+and matches and condition passes,
+'to-left is used as left of pair,
+'to-right is used as right of pair.
+
+2. If only 'from, and the regexp of from matches user input,
+user-input is used as left of pair 
+and 'to-right is used as right of pair.
+
+3. If both 'from and 'to-left exists,
+'from as regexp is used to match user-input,
+if it matches, 'to-left is used as left of pair
+and 'to-right is used as right of pair.
+
+In addition, 'to-left and 'to-right can be a function
+that takes user input as argument and return a string.
+
+If they are functions, and you have a regex 'from,
+you can use (match-string num user-input) to get
+regexp matched groups.
+
+'condition, if exist, should be a function
+that takes user input as argument and return a boolean.
+You can use it to check major modes, etc.
+
+A word of 'from:
+\"^\" and \"$\" are added automatically to from before matching.
+Also don't forget regexp escapes.")
+#+END_SRC
+
+** Delete function's extended rule list.
+
+There is also =isolate-delete-extended-pair-list=.
+This rule list if used by delete functions
+in addition to =isolate-pair-list=.
+So it's called "extended" list.
+The pairs in this list are tried first, then
+the =isolate-pair-list=.
+
+*How does delete function uses rule lists:*
+
+First, delete function asks for user input.
+Then it do the same thing as in add functions:
+Try to calculate out a pair.
+
+When it gets a pair, or doesn't match anything and ends up
+with the original input, =isolate= uses the calculated (or not)
+ left and right string to match text in buffer.
+If it can found the paired text, you can delete them.
+
+Note that with =(match-string)= you can compose generic rules!
+
+Here is the default value:
+
+#+BEGIN_SRC emacs-lisp
+(defvar isolate-delete-extended-pair-list
+  '(((from . "<t>") (to-left . "<[^/]+?>") (to-right . "</.+?>"))
+    ((from . "<\\([^ ]+\\).*>")
+     (to-left . (lambda (user-input) (format "<%s *.*>" (match-string 1 user-input))))
+     (to-right . (lambda (user-input) (format "</%s>" (match-string 1 user-input))))))
+  "Rule list.
+Detail see `isolate-pair-list'")
+#+END_SRC
+
+
+** Shortcuts for quick commands
+
+The last rule list is for quick commands.
+This is how "pair with space" are achieved.
+
+When using quick commands,
+you enters a key,
+but before isolate matches 
+this single character string to a pair,
+the string goes trhough a translator.
+
+Basically, you can "translate" some predefined
+keys to longer strings, for example:
+=)= -> =(, =.
+
+The rule list is =isolate-quick-shortcut-list=,
+its default value is:
+
+#+BEGIN_SRC emacs-lisp
+(defvar isolate-quick-shortcut-list
+  '(((from . "]") (to . "[, "))
+    ((from . ")") (to . "(, "))
+    ((from . "}") (to . "{, "))
+    ((from . ">") (to . "<, "))
+    )
+  "Shortcuts for `isolate-quick-xxx' functions.
+
+For example, by default \"]\" is mapped to \"[ \", etc.
+
+Each element is an alist representing a shortcut.
+Each shortcut have three possible keys: 'from, 'to and 'condition.
+'from and 'to are strings \(not regexp!\),
+
+'condition is a function that takes user input as argument.
+'condition is optional.
+If 'condition exists and returns nil, the shortcut will be ignored.")
+#+END_SRC
+
+
+* Contribution
+
+Contribution is welcomed!
+Especially matching rules.
+As you can see,
+right now there aren't much of them.
+
+Also, if you think documentation needs improvement,
+please let my know so I know how to do better.
