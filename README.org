@@ -84,7 +84,7 @@ and long commands to =S= operators.
 
 ** Segmentation
 
-You can segment your input with a special separator (default to ~,~).
+You can segment your input with a special separator (default to ",").
 =isolate= inverses the order of segments on the right side:
 
 #+BEGIN_SRC
@@ -233,7 +233,7 @@ the string goes trhough a translator.
 
 Basically, you can "translate" some predefined
 keys to longer strings, for example
-=)= -> ~(, ~.
+=)= -> "(, ".
 
 The rule list is =isolate-quick-shortcut-list=,
 its default value is:
