@@ -84,7 +84,7 @@ and long commands to =S= operators.
 
 ** Segmentation
 
-You can segment your input with a special separator (default =,=).
+You can segment your input with a special separator (default to =,= ).
 =isolate= inverses the order of segments on the right side:
 
 #+BEGIN_SRC
