@@ -59,38 +59,22 @@ Each shortcut have three possible keys: 'from, 'to and 'condition.
 If 'condition exists and returns nil, the shortcut will be ignored.")
 
 (defvar isolate-pair-list
-  '(((left . "`") (right . "'") (condition . (lambda (_) (if (equal major-mode 'emacs-lisp-mode) t nil))))
-    ((left . "(") (right . ")"))
-    ((left . "\\[") (right . "]"))
-    ((left . "{") (right . "}"))
-    ;; TODO remove this test entry when finished
-    ((left . "test") (right-regexp . "regexp-test"))
-    ((left . "<") (right . ">"))
-    ((left . "<\\(.+?\\) .+?>") (right . (lambda (left) (format "</%s>" (match-string 1 left)))))
+  '(((to-left . "`") (to-right . "'") (condition . (lambda (_) (if (equal major-mode 'emacs-lisp-mode) t nil))))
+    ((to-left . "(") (to-right . ")"))
+    ((to-left . "[") (to-right . "]"))
+    ((to-left . "{") (to-right . "}"))
+    ((to-left . "<") (to-right . ">"))
+    ((from . "<\\([^ ]+\\).*>") (to-right . (lambda (left) (format "</%s>" (match-string 1 left)))))
+    ((to-left . "\\{begin}") (to-right . "\\{end}"))
+    ((from . "org-src") (to-left . "\n#+BEGIN_SRC\n") (to-right . "\n#+END_SRC\n"))
     )
   "Matching pairs.
-Each element is an alist with four possible keys: left, right, right-regexp and condition.
-Only 'left and 'right are required.
+Each element is an alist with four possible keys: 'from, 'to-left, to-right and condition.
+Only ('from or 'to-left) and 'to-right are required.
 
-Value of 'left and 'right defines left and right segments.
-Both segements are strings. Left segement is treated as a regexp pattern.
-\"^\" and \"$\" are added automatically to the patterns.
+Value of 'from is match by user input, it is a regexp string.
+\"^\" and \"$\" are added automatically to it before matching.
 Also don't forget regexp escapes.
-
-Right segement can be a function that returns a string.
-The function will be given the left segement user inserted as argument.
-Because isolate uses `string-match' to match left segment,
-you can extract groups from left segment by (match-string num left-segment).
-`left-segment' is the name of the argument.
-
-'right-regex is used by `isolate-long-delete' when it searches pairs
-by the left regexp you entered (or translated from `isolate-delete-regexp-shortcut-list').
-When searching for the right segment,
-isolate will use the plain 'right string if 'right-regexp does not exist.
-If 'right-regexp does exist, isolate uses it to match right segment.
-
-Like 'right, you can use a function that returns a string for 'right-regexp.
-The function recieves the matched left segment.
 
 Value of 'condition is a function that takes a string
 which is the left segement user inserted.
@@ -99,7 +83,17 @@ If condition exists, isolate only match the pair
 when condition function returns t.
 This function can be used to check major mode or some special rules.
 
-'condition takes effect on both adding and deleting (therfore also changing).")
+When 'from matches or 'to-left completely equal to user input,
+and also condition passes,
+value of 'to-left and 'to-right defines left and right segments.
+If 'to-left is ommited,
+it is considered to be the same as the string 'from matched from buffer.
+
+Either 'to-left and 'to-right can be a function that returns a string.
+The function takes user input as argument.
+Because isolate uses `string-match' to match user input with 'from,
+you can extract groups from left segment by (match-string num user-input).
+`user-input' is the name of the argument.")
 
 (defvar isolate-setup-hook nil
   "This hook is ran after `isolate--add-setup'.
@@ -118,46 +112,36 @@ and enters `evil-insert-state' if nessessary.")
 
 ;;;; Essential
 
-(defun isolate--match-pair (left-segment &optional use-regexp)
-  "Find matching right segment for LEFT-SEGMENT.
-LEFT segment is not everthing left to region,
+(defun isolate--match-pair (left-segment pair-list)
+  "Find matching left and right segment for LEFT-SEGMENT.
+Return a cons of (left . right).
+LEFT-SEGMENT is not everthing left to region,
 but one of the segments separated by `isolate-separator'.
 
-If USE-REGEXP is non-nil, use 'right-regexp instead of plain 'right.
-Detail in `isolate-pair-list'.
-If the matched pair doesn't have a 'right-regexp key,
-'right will be used instead.
+PAIR-LIST is the list in which this function looks for match.
 
-This option is used by `isolate-delete' functions for matching.
-
-Return LEFT-SEGMENT itself if nothing matches.
-So this function never returns nil."
+Return (LEFT-SEGMENT . LEFT-SEGMENT) if nothing matches.
+This function never returns nil."
   (catch 'return
-    (dolist (pair isolate-pair-list)
-      (let ((left-pattern (alist-get 'left pair))
-            (right (alist-get 'right pair))
-            (right-regexp (alist-get 'right-regexp pair))
+    (dolist (pair pair-list)
+      (let ((from (alist-get 'from pair))
+            (to-left (alist-get 'to-left pair))
+            (to-right (alist-get 'to-right pair))
             (condition (alist-get 'condition pair)))
-        (if (or (not condition) (and condition (funcall condition left-segment)))
-            ;; 1. further matching
-            (if (string-match (format "^%s$" left-pattern) left-segment)
-                ;; 2. match
-                (throw 'return
-                       (if (and right-regexp use-regexp)
-                           ;; right-regexp
-                           (if (functionp right-regexp)
-                               (funcall right-regexp left-segment)
-                             right-regexp)
-                         ;; plain right
-                         (if (functionp right)
-                             (funcall right left-segment)
-                           right)))
-              ;; 2. no match, go to next pair
-              nil)
-          ;; 1. condition false, go to next pair
-          nil)))
+        (when (and (or (not condition) ; no condition
+                       (and condition (funcall condition left-segment))) ; condition passes
+                   (or (and to-left (equal to-left left-segment)) ; to-left exists & exactly equal
+                       (string-match (format "^%s$" from) left-segment))) ; from matches
+          (setq to-left (or to-left left-segment))
+          (throw 'return
+                 (cons (if (functionp to-left)
+                           (funcall to-left left-segment)
+                         to-left)
+                       (if (functionp to-right)
+                           (funcall to-right left-segment)
+                         to-right))))))
     ;; if no one matches, return left itself
-    left-segment))
+    (cons left-segment left-segment)))
 
 ;;;; Helper
 
@@ -178,19 +162,19 @@ Return LEFT-SEGMENT itself if not."
 (defmacro isolate--setup-marker (left-beg left-end right-beg righ-end)
   "Helper for setting up markers."
   `(save-excursion
-    (goto-char ,left-beg)
-    (setq isolate--left-beg (point-marker))
-    
-    (goto-char ,left-end)
-    (setq isolate--left-end (point-marker))
-    (set-marker-insertion-type isolate--left-end t)
-    
-    (goto-char ,right-beg)
-    (setq isolate--right-beg (point-marker))
-    
-    (goto-char ,righ-end)
-    (setq isolate--right-end (point-marker))
-    (set-marker-insertion-type isolate--right-end t)))
+     (goto-char ,left-beg)
+     (setq isolate--left-beg (point-marker))
+     
+     (goto-char ,left-end)
+     (setq isolate--left-end (point-marker))
+     (set-marker-insertion-type isolate--left-end t)
+     
+     (goto-char ,right-beg)
+     (setq isolate--right-beg (point-marker))
+     
+     (goto-char ,righ-end)
+     (setq isolate--right-end (point-marker))
+     (set-marker-insertion-type isolate--right-end t)))
 
 
 ;;;; Fundamental helper
@@ -225,22 +209,18 @@ This function doesn't move point."
   ;; setup
   (isolate--add-setup-marker)
   (isolate--add-setup)
-
   (save-excursion
-    (let ((left (isolate--translate-quick-shortcut
-                 (char-to-string left-segment)))
-          right-list
-          right)
+    (let* ((left (isolate--translate-quick-shortcut
+                  (char-to-string left-segment)))
+           (con (isolate--add left))
+           (actual-left (car con))
+           (right (cdr con)))
+      ;; insert left
       (goto-char isolate--left-beg)
-      (insert left)
-      ;; construct right
-      (dolist (segment (split-string left isolate-separator))
-        (isolate--push (isolate--match-pair segment) right-list))
-      (setq right (apply 'concat right-list))
+      (insert actual-left)
       ;; insert right
       (goto-char isolate--right-beg)
       (insert right)))
-  
   ;; cleanup
   (isolate--add-cleanup))
 
@@ -265,44 +245,76 @@ Hit C-c C-c when finished."
   :keymap (let ((map (make-sparse-keymap)))
             (define-key map (kbd "C-c C-c") #'isolate-add-finish)
             (define-key map (kbd "C-c q") #'isolate-add-abort)
+            (define-key map (kbd "C-c a") #'isolate-goto-beginning)
+            (define-key map (kbd "C-c e") #'isolate-goto-end)
             map)
   (if isolate-add-mode
       (progn
         (isolate--add-setup-marker)
         (isolate--add-setup)
-        (add-hook 'post-command-hook #'isolate--add t t)
+        (add-hook 'post-command-hook #'isolate--add-hook t t)
         (advice-add 'message :around #'isolate--add-echo-advice))
     (isolate--add-cleanup)
-    (remove-hook 'post-command-hook #'isolate--add t)
+    (remove-hook 'post-command-hook #'isolate--add-hook t)
     (advice-remove 'message #'isolate--add-echo-advice))
   (isolate--disable-autoparens))
+
+(defun isolate-goto-beginning ()
+  "Go to beginning of left."
+  (interactive)
+  (goto-char isolate--left-beg))
+
+(defun isolate-goto-end ()
+  "Go to end of left."
+  (interactive)
+  (goto-char isolate--left-end))
 
 
 ;;;; Function
 
-(defun isolate--add ()
-  "Add isolation to region. This function is used in `isolate-add-mode'.
-Use `isolate-quick-add' for interactive use."
+(defun isolate--add (left)
+  "Return (left . right) base on LEFT."
+  (let* ((left-list nil)
+         (actual-left nil)
+         (right nil)
+         (right-list nil))
+    ;; match left and construct right
+    (dolist (segment (split-string left isolate-separator))
+      (let* ((con (isolate--match-pair segment isolate-pair-list))
+             (left-segment (car con))
+             (right-segment (cdr con)))
+        (isolate--append left-list left-segment)
+        (isolate--push right-segment right-list)))
+    ;; replace left and insert right
+    (setq actual-left (funcall 'string-join left-list isolate-separator))
+    (setq right (apply 'concat right-list))
+    (cons actual-left right)))
 
-  (save-excursion
-    (let* ((left (buffer-substring-no-properties
-                  isolate--left-beg isolate--left-end))
-           (left-list (split-string left isolate-separator))
-           (right nil)
-           (right-list nil))
-      ;; match left and construct right
-      (dolist (segment left-list)
-        (isolate--push (isolate--match-pair segment) right-list))
-      ;; insert right
-      (setq right (apply 'concat right-list))
-      (isolate--replace-with right isolate--right-beg isolate--right-end))))
+(defvar-local isolate--left-old-length 0
+  "Length of left before process.")
+
+(defvar-local isolate--old-cursor-pos 0
+  "Cursor position before process.")
+
+(defun isolate--add-hook ()
+  "Add isolation to region. This function is used in `isolate-add-mode'.
+For actual command use `isolate-quick-add' or `isolate-add-mode'."
+  (let* ((left (buffer-substring-no-properties
+                isolate--left-beg isolate--left-end))
+         (con (isolate--add left))
+         (actual-left (car con))
+         (right (cdr con)))
+    (unless (equal left actual-left)
+      (isolate--replace-with actual-left isolate--left-beg isolate--left-end))
+    (isolate--replace-with right isolate--right-beg isolate--right-end)))
 
 
 ;;;; Helper
 
+
 (defun isolate--add-echo-advice (old-func &rest arg)
   "Indicate user that add mode is active. OLD-FUNC is `message'. ARG are args."
-  (funcall old-func "[ ADD ]   [ Abort: C-c q ] [ Finish: C-c C-c ]\n\n%s" (apply 'format arg)))
+  (funcall old-func "[ ADD ]   [ Abort: C-c q ] [ Finish: C-c C-c ] [ Jump BEG: C-c a ] [ Jump END: C-c e ]\n\n%s" (apply 'format arg)))
 
 
 (defun isolate--add-setup-marker ()
@@ -327,8 +339,6 @@ Use `isolate-quick-add' for interactive use."
 
   ;; insert
   (goto-char isolate--left-beg)
-  (when (bound-and-true-p evil-mode)
-    (evil-insert-state))
   (deactivate-mark)
   (run-hooks 'isolate-setup-insert-hook))
 
@@ -343,15 +353,16 @@ Use `isolate-quick-add' for interactive use."
     ;; separator
     (goto-char isolate--left-beg)
     (while (search-forward isolate-separator isolate--left-end t)
-      (replace-match ""))
-    ;; insert
-    (when (bound-and-true-p evil-mode)
-      (evil-normal-state))))
+      (replace-match ""))))
 
 (defun isolate--disable-autoparens ()
   "Disable paren auto-completion in `isolate-add-mode'."
   (if isolate-add-mode
       (progn
+        (setq isolate--evil
+              (if (bound-and-true-p evil-mode)
+                  (progn (evil-mode -1) t)
+                nil))
         (setq isolate--smartparens
               (if (bound-and-true-p smartparens-mode)
                   (progn (smartparens-mode -1) t)
@@ -364,6 +375,8 @@ Use `isolate-quick-add' for interactive use."
               (if (bound-and-true-p electric-pair-mode)
                   (progn (elctric-pair-mode -1) t)
                 nil)))
+    (when (bound-and-true-p isolate--evil)
+      (evil-mode))
     (when (bound-and-true-p isolate--smartparens)
       (smartparens-mode))
     (when (bound-and-true-p isolate--paredit)
@@ -375,22 +388,38 @@ Use `isolate-quick-add' for interactive use."
 
 ;;;; Variable
 
-(defvar isolate-delete-regexp-shortcut-list
-  '(((from . "<t>") (to . "<\\(.+?\\) .+?>")))
-  "This is an alist for shortcuts.
+(defvar isolate-delete-extended-pair-list
+  '(((from . "<t>") (to-left . "<[^/]+?>") (to-right . "</.+?>"))
+    ((from . "<\\([^ ]+\\).*>")
+     (to-left . (lambda (user-input) (format "<%s *.*>" (match-string 1 user-input))))
+     (to-right . (lambda (user-input) (format "</%s>" (match-string 1 user-input))))))
+  "This is an alist for extended pairs for delete function.
 Each element is an alist represents a shortcut.
-They have three keys: 'from, 'to and 'condition.
-'from is replaced by 'to.
+They have four possible keys: 'from, 'to-left, 'to-right and 'condition.
+
+'from is a regexp string that matches user input.
+Like `isolate-pair-list', \"^\" and \"$\" are added to 'from
+for sole match.
+
 'condition is a function, just like 'condition in `isolate-pair-list',
 it takes the user input (same to 'from's value).
 If it exist and return nil, the shorcut will be ignored.
 
-When user use `isolate-long-delete',
-these shortcuts can save them from entering long and complicated regexp.
+If 'from matches and 'condition passes,
+'to-left and 'to-right will be used for searching the pair in buffer.
 
-For example, when user enters \"<t>\",
-isolate translate it to \"^<\\(.+?\\) .+?>$\"
-which matchs html tags (left).")
+If 'to-left is ommited, it is considerd the same as 'from.
+
+Either of them can be a regexp string or a function that returns a regexp) string.
+The function should take the user entered string as argument.
+Like `isolate-pair-list', your can use (match-string num user-input)
+to match part of user-input.
+
+As for program logic, 'to will then be matched by 'left-regexp
+if it exists, or compared with equal with 'left,
+in `isolate-pair-list', if they exactly equal to each other,
+and condition passes, the corresponding 'right will be used.")
+
 
 (defvar-local isolate--search-level 1
   "The level of matching pairs that isolate searches.
@@ -416,10 +445,9 @@ Don't forget to reset this when exit `isolate-delete-mode'.")
 Return t if match, nil if no match."
   (interactive "cEnter left segment")
   ;; match & delete
-  (if (isolate--search-segment
-       (regexp-quote
-        (isolate--translate-quick-shortcut
-         (char-to-string left-segment))))
+  (if (isolate--search-pair
+       (isolate--translate-quick-shortcut
+        (char-to-string left-segment)))
       (progn
         (isolate--replace-with "" isolate--left-beg isolate--left-end)
         (isolate--replace-with "" isolate--right-beg isolate--right-end)
@@ -446,9 +474,9 @@ Return t if match, nil if no match."
   (setq isolate--search-history
         (delete isolate--delete-left-segment isolate--search-history))
   (push isolate--delete-left-segment isolate--search-history)
-  (setq isolate--search-success
-        (isolate--search-segment isolate--delete-left-segment))
-  (isolate--delete-update-highlight))
+  (when (setq isolate--search-success
+              (isolate--search-pair isolate--delete-left-segment))
+    (isolate--delete-update-highlight)))
 
 (define-minor-mode isolate-delete-mode
   "Delete surrounding by entering regexp."
@@ -489,7 +517,7 @@ Return t if match, nil if no match."
   "Search one level of matching pairs up."
   (interactive)
   (setq isolate--search-level (1+ isolate--search-level))
-  (if (isolate--search-segment isolate--delete-left-segment isolate--search-level)
+  (if (isolate--search-pair isolate--delete-left-segment isolate--search-level)
       (progn
         (isolate--delete-update-highlight)
         (message "Up one level"))
@@ -502,7 +530,7 @@ Return t if match, nil if no match."
   (interactive)
   (setq isolate--search-level (1- isolate--search-level))
   (if (and (>= isolate--search-level 1)
-           (isolate--search-segment isolate--delete-left-segment isolate--search-level))
+           (isolate--search-pair isolate--delete-left-segment isolate--search-level))
       (progn
         (isolate--delete-update-highlight)
         (message "Down one level"))
@@ -520,23 +548,6 @@ Return t if match, nil if no match."
       (while (re-search-forward regexp end t)
         (setq count (1+ count)))
       count)))
-
-(defun isolate--translate-shortcut (segment)
-  "Translate SEGMENT to full regexp.
-Return SEGMENT if no match."
-  (catch 'return
-    (dolist (shortcut isolate-delete-regexp-shortcut-list)
-      (let ((from (alist-get 'from shortcut))
-            (to (alist-get 'to shortcut))
-            (condition (alist-get 'condition shortcut)))
-        (when (and (equal from segment)
-                   ;; 'condition exist and returns t
-                   ;; or doesn't exist
-                   (or (not condition)
-                       (and condition (funcall condition segment))))
-          (throw 'return to))))
-    ;; return segment if no match
-    segment))
 
 (defmacro isolate--jump-backward ()
   "Used in `isolate--find-balance-pair'."
@@ -590,16 +601,15 @@ Return t if successed, nil if failed."
         (while (> count 1)
             (isolate--jump-backward)
             (setq new-right-count (isolate--count-match right-regexp left-beg origin-point))
-            (if (> new-right-count old-right-count)
-                (setq old-right-count new-right-count)
-              (setq count (1- count))))
+            (setq count (+ count (- new-right-count old-right-count 1)))
+            (setq old-right-count new-right-count))
         ;; it's time to find right match.
         ;; setup right-beg and righ-end
         (isolate--jump-forward)
         ;; jump right until balanced
         (while (let ((left-count (isolate--count-match left-regexp left-beg right-beg))
                      (right-count (isolate--count-match right-regexp left-end right-end)))
-                 (> (- left-count right-count) 0))
+                 (> left-count right-count))
           (isolate--jump-forward))
         (when (< right-beg origin-point)
           (throw 'return nil))
@@ -611,8 +621,8 @@ Return t if successed, nil if failed."
         ;; return t
         t))))
 
-(defun isolate--search-segment (left-segment &optional count)
-  "Seach COUNT'th LEFT-SEGMENT and matching right segment.
+(defun isolate--search-pair (left &optional count)
+  "Seach COUNT'th LEFT and matching right segment.
 Return t if matched, nil if not.
 Note that COUNT starts from 1, not 0. 0 and nil are treated as 1.
 
@@ -623,26 +633,24 @@ COUNT is like COUNT in `search-backward-regexp'."
   (catch 'return
     (let ((count (if (or (equal count nil) (equal count 0)) 1 count))
           ;; special treatment for `isolate-quick-delete'
-          (left-list (split-string left-segment isolate-separator))
-          left-regexp-list
+          left-list
           left-regexp
+          right-list
           right-regexp
-          right-regexp-list
           (left-count 0)
           (right-count 0))
       ;; construct left and right regexp
-      (dolist (segment left-list)
-        (isolate--append left-regexp-list (isolate--translate-shortcut segment))
-        (isolate--push (isolate--match-pair (save-excursion
-                                              (if (re-search-backward
-                                                   (isolate--translate-shortcut segment) nil t)
-                                                  (match-string 0)
-                                                (throw 'return nil)))
-                                            t)
-                       right-regexp-list))
+      (dolist (segment (split-string left isolate-separator))
+        (let* ((con (isolate--match-pair
+                     segment
+                     (append isolate-delete-extended-pair-list isolate-pair-list)))
+               (left-pattern (car con))
+               (right-pattern (cdr con)))
+          (isolate--append left-list left-pattern)
+          (isolate--push right-pattern right-list)))
       ;; construct
-      (setq left-regexp (apply 'concat left-regexp-list))
-      (setq right-regexp (apply 'concat right-regexp-list))
+      (setq left-regexp (apply 'concat left-list))
+      (setq right-regexp (apply 'concat right-list))
       ;; search & return
       (isolate--find-balance-pair left-regexp right-regexp nil count))))
 
@@ -690,6 +698,7 @@ COUNT is like COUNT in `search-backward-regexp'."
   (interactive)
   (setq isolate--changing nil)
   (when isolate--search-success
+    (setq isolate--search-success nil)
     (let ((isolate--changing t))
       (advice-remove 'isolate-delete-finish #'isolate--change-delete-advice)
       (isolate-add-mode))))
