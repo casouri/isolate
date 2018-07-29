@@ -77,6 +77,8 @@ is alter *three* rule lists.
 
 [[./img/isolate-delete-2.gif]]
 
+[[./img/isolate-delete-3.gif]]
+
 ** Change
 
 Change is simply the combination of delete and add.
