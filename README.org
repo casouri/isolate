@@ -87,7 +87,7 @@ Change is simply the combination of delete and add.
 you need to intall and load manually or by quelpa.
 
 * Usage
-
+  
 There are six commands avaliable:
 
 | =isolate-quick-add=    | =isolate-long-add=    |
