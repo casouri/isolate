@@ -8,7 +8,7 @@ I took the idea of regex from [[https://github.com/tslilc/siege-mode][siege-mode
 [[./img/isolate.png]]
 
 #+BEGIN_QUOTE
-Easy as 1-2-3. As clear as the fact that I'm not a vampire.
+Customizaion is clear as the fact that I'm not a vampire.
 
                    --- Sir Vlad
 #+END_QUOTE
