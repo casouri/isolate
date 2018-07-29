@@ -65,7 +65,9 @@ ABC -> <div class="">ABC -> </div>
 ABC -> org-srcABC ->
 #+END_SRC
 =#+BEGIN_SRC= 
+
 =ABC=
+
 =#+END_SRC=
 
 *** Delete examples
@@ -172,7 +174,9 @@ Featuring shortcuts:
 HELLO -> org-srcHELLO ->
 #+END_SRC
 =#+BEGIN_SRC= 
+
 =HELLO=
+
 =#+END_SRC=
 
 
@@ -213,7 +217,9 @@ Featuring shortcuts:
 input: org-src
 #+END_SRC
 =#+BEGIN_SRC= 
+
 =HELLO=
+
 =#+END_SRC=
 #+BEGIN_SRC 
 ->
