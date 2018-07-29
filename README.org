@@ -169,9 +169,9 @@ Featuring shortcuts:
 #+BEGIN_SRC 
 HELLO -> org-srcHELLO ->
 
-#+BEGIN_SRC 
-HELLO
-#+END_SRC
+  #+BEGIN_SRC 
+  HELLO
+  #+END_SRC
 #+END_SRC
 
 [[./img/isolate-add-3.gif]]
