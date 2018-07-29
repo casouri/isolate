@@ -49,52 +49,109 @@ Basically, =isolate= provides three ways to regognize a pair:
 
 *As an example for the first case:*
 
+Command: =isolate-quick-add=
+
 #+BEGIN_SRC 
-ABC -> (ABC -> (ABC)
+1. input: (
+HELLO -> (HELLO)
+
+2. input: )
+HELLO -> ( HELLO )
 #+END_SRC
+
+[[./img/isolate-add-2.gif]]
 
 *An example for the second case:*
 
 By inserting =div>= on the left, isolate completeed the html pair for you.
 
+And it even recognize a more complex input and completed the pair correctly.
+
+Command: =isolate-long-add=
+   
 #+BEGIN_SRC 
-ABC -> <div>ABC -> <div>ABC</div>
+1. HELLO -> <p>HELLO -> <p>HELLO</p>
+
+2. HELLO -> <div class="">,<p>HELLO -> <div class=""><p>HELLO</p></div>
+
+3. HELLO -> <div class="">,\n,<p>,\n,HELLO ->
+
+<div class="">
+<p>
+HELLO
+</p>
+</div>
 #+END_SRC
 
-And it even recognize a more complex input and completed the pair correctly:
+[[./img/isolate-add-1.gif]]
 
-#+BEGIN_SRC 
-ABC -> <div class="">ABC -> </div>
-#+END_SRC
 
 *An example for the third case:*
 
+Command: =isolate-long-add=
+
 #+BEGIN_SRC 
-ABC -> org-srcABC ->
+HELLO -> org-srcHELLO ->
 #+END_SRC
 =#+BEGIN_SRC= 
 
-=ABC=
+=HELLO=
 
 =#+END_SRC=
 
+[[./img/isolate-add-3.gif]]
+
 *** Delete examples
 
-Above features also apply to change and delete commands:
+*Above features also apply to change and delete commands:*
 
-The shortcuts are especially useful in deleting:
-
-#+BEGIN_SRC 
-input: <t> -> translates to a regexp that matches all html tags.
-
-<p class="">ABC</p> -> ABC
-#+END_SRC
+Command: =isolate-quick-delete=
 
 #+BEGIN_SRC 
-input: <div> -> only matches div tags
+1. input: (
 
-<div><p>ABC</p></div> -> <p>ABC</p>
+(HELLO) -> HELLO
+
+2. input: )
+
+( HELLO ) -> HELLO
 #+END_SRC
+
+[[./img/isolate-delete-2.gif]]
+
+
+*The shortcuts are especially useful in deleting:*
+
+Command: =isolate-long-delete=
+
+#+BEGIN_SRC 
+1. <t> -> html tag
+2. <div> -> div tag
+3. <xxx> -> xxx tag
+#+END_SRC
+
+[[./img/isolate-delete-1.gif]]
+
+Command: =isolate-long-delete=
+
+*Featuring shortcuts:*
+
+#+BEGIN_SRC 
+input: org-src
+#+END_SRC
+=#+BEGIN_SRC= 
+
+=HELLO=
+
+=#+END_SRC=
+#+BEGIN_SRC 
+->
+HELLO
+#+END_SRC
+
+
+[[./img/isolate-delete-3.gif]]
+
 
 ** Segmentation
 
@@ -124,10 +181,6 @@ It's very easy!
   - [[#recognize][Recognize?]]
   - [[#segmentation][Segmentation]]
   - [[#you-can-extend-it][You can extend it!]]
-- [[#spotlight][Spotlight]]
-  - [[#add][Add]]
-  - [[#delete][Delete]]
-  - [[#change][Change]]
 - [[#install][Install]]
 - [[#usage][Usage]]
   - [[#segmentation][Segmentation]]
@@ -137,109 +190,6 @@ It's very easy!
   - [[#delete-functions-extended-rule-list][Delete function's extended rule list.]]
   - [[#shortcuts-for-quick-commands][Shortcuts for quick commands]]
 - [[#contribution][Contribution]]
-
-* Spotlight
-  
-** Add
-   
-Command: =isolate-long-add=
-   
-#+BEGIN_SRC 
-1. HELLO -> <p>HELLO -> <p>HELLO</p>
-
-2. HELLO -> <div class="">,<p>HELLO -> <div class=""><p>HELLO</p></div>
-
-3. HELLO -> <div class="">,\n,<p>,\n,HELLO ->
-
-<div class="">
-<p>
-HELLO
-</p>
-</div>
-
-#+END_SRC
-
-
-[[./img/isolate-add-1.gif]]
-
-Command: =isolate-quick-add=
-
-#+BEGIN_SRC 
-1. input: (
-HELLO -> (HELLO)
-
-2. input: )
-HELLO -> ( HELLO )
-#+END_SRC
-
-[[./img/isolate-add-2.gif]]
-
-Command: =isolate-long-add=
-
-Featuring shortcuts:
-
-#+BEGIN_SRC 
-HELLO -> org-srcHELLO ->
-#+END_SRC
-=#+BEGIN_SRC= 
-
-=HELLO=
-
-=#+END_SRC=
-
-
-
-[[./img/isolate-add-3.gif]]
-
-** Delete
-
-Command: =isolate-long-delete=
-
-#+BEGIN_SRC 
-1. <t> -> html tag
-2. <div> -> div tag
-3. <xxx> -> xxx tag
-#+END_SRC
-
-[[./img/isolate-delete-1.gif]]
-
-Command: =isolate-quick-delete=
-
-#+BEGIN_SRC 
-1. input: (
-
-(HELLO) -> HELLO
-
-2. input: )
-
-( HELLO ) -> HELLO
-#+END_SRC
-
-[[./img/isolate-delete-2.gif]]
-
-Command: =isolate-long-delete=
-
-Featuring shortcuts:
-
-#+BEGIN_SRC 
-input: org-src
-#+END_SRC
-=#+BEGIN_SRC= 
-
-=HELLO=
-
-=#+END_SRC=
-#+BEGIN_SRC 
-->
-HELLO
-#+END_SRC
-
-
-[[./img/isolate-delete-3.gif]]
-
-** Change
-
-Change is simply the combination of delete and add.
 
 * Install
 
