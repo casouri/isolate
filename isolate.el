@@ -59,17 +59,17 @@ Each shortcut have three possible keys: 'from, 'to and 'condition.
 If 'condition exists and returns nil, the shortcut will be ignored.")
 
 (defvar isolate-pair-list
-  '(((to-left . "`") (to-right . "'") (condition . (lambda (_) (if (equal major-mode 'emacs-lisp-mode) t nil))))
+  '(((to-left . "`") (to-right . "'") (no-regexp . t) (condition . (lambda (_) (if (equal major-mode 'emacs-lisp-mode) t nil))))
     ((to-left . "(") (to-right . ")"))
-    ((to-left . "[") (to-right . "]"))
+    ((to-left . "[") (to-right . "]") (no-regexp . t))
     ((to-left . "{") (to-right . "}"))
     ((to-left . "<") (to-right . ">"))
     ((from . "<\\([^ ]+\\).*>") (to-right . (lambda (left) (format "</%s>" (match-string 1 left)))))
     ((to-left . "\\{begin}") (to-right . "\\{end}"))
-    ((from . "org-src") (to-left . "#+BEGIN_SRC\n") (to-right . "#+END_SRC\n"))
+    ((from . "org-src") (to-left . "#+BEGIN_SRC\n") (to-right . "#+END_SRC\n") (no-regexp . t))
     )
   "Matching pairs.
-Each element is an alist with four possible keys: 'from, 'to-left, to-right and condition.
+Each element is an alist with five possible keys: 'from, 'to-left, to-right, no-regexp and condition.
 Only ('from or 'to-left) and 'to-right are required.
 
 'right is required, one from 'from and 'to-left is required,
@@ -99,6 +99,13 @@ regexp matched groups.
 'condition, if exist, should be a function
 that takes user input as argument and return a boolean.
 You can use it to check major modes, etc.
+
+'no-regexp only affects delete commands,
+if you want to search the matche pair plainly by text
+rather than by regexp, add \(no-regexp . t\).
+
+This is especially important for pairs that contains
+regexp keywords such as [, \\, +, etc.
 
 A word of 'from:
 \"^\" and \"$\" are added automatically to from before matching.
@@ -133,22 +140,26 @@ Return (LEFT-SEGMENT . LEFT-SEGMENT) if nothing matches.
 This function never returns nil."
   (catch 'return
     (dolist (pair pair-list)
-      (let ((from (alist-get 'from pair))
-            (to-left (alist-get 'to-left pair))
-            (to-right (alist-get 'to-right pair))
-            (condition (alist-get 'condition pair)))
+      (let* ((from (alist-get 'from pair))
+             (to-left (alist-get 'to-left pair))
+             (to-right (alist-get 'to-right pair))
+             (condition (alist-get 'condition pair))
+             (no-regexp (alist-get 'no-regexp pair))
+             (quote-func (if no-regexp 'regexp-quote 'eval)))
         (when (and (or (not condition) ; no condition
                        (and condition (funcall condition left-segment))) ; condition passes
                    (or (and to-left (equal to-left left-segment)) ; to-left exists & exactly equal
                        (string-match (format "^%s$" from) left-segment))) ; from matches
           (setq to-left (or to-left left-segment))
           (throw 'return
-                 (cons (if (functionp to-left)
-                           (funcall to-left left-segment)
-                         to-left)
-                       (if (functionp to-right)
-                           (funcall to-right left-segment)
-                         to-right))))))
+                 (cons (funcall quote-func
+                                (if (functionp to-left)
+                                    (funcall to-left left-segment)
+                                  to-left))
+                       (funcall quote-func
+                                (if (functionp to-right)
+                                    (funcall to-right left-segment)
+                                  to-right)))))))
     ;; if no one matches, return left itself
     (cons left-segment left-segment)))
 
@@ -406,7 +417,14 @@ It also disable evil."
 ;;;; Variable
 
 (defvar isolate-delete-extended-pair-list
-  '(((from . "<t>") (to-left . "<[^/]+?>") (to-right . "</.+?>"))
+  '(((to-left . "\\") (to-right . "\\") (no-regexp . t))
+    ((to-left . "+") (to-right . "+") (no-regexp . t))
+    ((to-left . ".") (to-right . ".") (no-regexp . t))
+    ((to-left . "*") (to-right . "*") (no-regexp . t))
+    ((to-left . "?") (to-right . "?") (no-regexp . t))
+    ((to-left . "^") (to-right . "^") (no-regexp . t))
+    ((to-left . "$") (to-right . "$") (no-regexp . t))
+    ((from . "<t>") (to-left . "<[^/]+?>") (to-right . "</.+?>"))
     ((from . "<\\([^ ]+\\)[^<>]*>")
      (to-left . (lambda (user-input) (format "<%s *.*?>" (match-string 1 user-input))))
      (to-right . (lambda (user-input) (format "< *?/%s *?>" (match-string 1 user-input))))))
@@ -448,25 +466,6 @@ Return t if match, nil if no match."
   (isolate--delete-cleanup-overlay))
 
 ;;;;; Long delete
-
-(defvar isolate--delete-escape-regexp-alist
-  '(("\\" . "\\\\")
-    ("[" . "\\[")
-    ("." . "\\.")
-    ("*" . "\\*")
-    ("+" . "\\+")
-    ("?" . "\\?")
-    ("^" . "\\^")
-    ("$" . "\\$"))
-  "Used to proper handles escape characters in regexp.")
-
-(defun isolate--delete-escape-regexp (pair)
-  "Handles regexp escaping of PAIR."
-  (let ((left (car pair))
-        (right (cdr pair)))
-    (cons (alist-get left isolate--delete-escape-regexp-alist left nil #'equal)
-          (alist-get right isolate--delete-escape-regexp-alist right nil #'equal))))
-
 
 (defvar isolate--delete-minibuffer-map (let ((map minibuffer-local-map))
                                          (define-key map (kbd "C-p") #'isolate-search-up)
@@ -720,10 +719,9 @@ COUNT is like COUNT in `search-backward-regexp'."
           (right-count 0))
       ;; construct left and right regexp
       (dolist (segment (split-string left isolate-separator))
-        (let* ((con (isolate--delete-escape-regexp
-                     (isolate--match-pair
+        (let* ((con (isolate--match-pair
                       segment
-                      (append isolate-delete-extended-pair-list isolate-pair-list))))
+                      (append isolate-delete-extended-pair-list isolate-pair-list)))
                (left-pattern (car con))
                (right-pattern (cdr con)))
           (isolate--append left-list left-pattern)
