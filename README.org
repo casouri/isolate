@@ -12,6 +12,8 @@ Customizaion is clear as the fact that I'm not a vampire.
                    --- Sir Vlad
 #+END_QUOTE
 
+[[./img/catcher.png]]
+
 * Introduction
 
 ** How it works
@@ -469,5 +471,13 @@ right now there aren't much of them.
 
 Also, if you think documentation needs improvement,
 please let my know so I know how to do better.
+
+
+
+
+
+<div class="">,<p>HELLO</p></div>
+
+
 
 
