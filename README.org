@@ -75,7 +75,7 @@ Command: =isolate-long-add=
 
 2. HELLO -> <div class="">,<p>HELLO -> <div class=""><p>HELLO</p></div>
 
-3. HELLO -> <div class="">,\n,<p>,\n,HELLO ->
+3. HELLO -> <div class="">,⮐,<p>,⮐,HELLO ->
 
 <div class="">
 <p>
