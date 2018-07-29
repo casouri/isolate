@@ -15,9 +15,10 @@ Customizaion is clear as the fact that I'm not a vampire.
 [[./img/catcher.png]]
 
 
-*Why you want it:*
+* Why you want it
 
 - Powerful
+- Magickal
 - Easily extended
 
 * Introduction
@@ -176,6 +177,7 @@ It's very easy!
 
 * Table of Countents                                                    :TOC:
 
+- [[#why-you-want-it][Why you want it]]
 - [[#introduction][Introduction]]
   - [[#how-it-works][How it works]]
   - [[#recognize][Recognize?]]
