@@ -1,9 +1,8 @@
 #+TITLE: isolate.el
 
-This package provides a powerful surrounding tool.
-It supports adding, deleting and changing pairs.
+(de)isolate like a wizard.
 
-I took the idea of regex from [[https://github.com/tslilc/siege-mode][siege-mode]], very cool package!
+Credit: I took the idea of regex from [[https://github.com/tslilc/siege-mode][siege-mode]], very cool package!
 
 [[./img/isolate.png]]
 
@@ -13,8 +12,91 @@ Customizaion is clear as the fact that I'm not a vampire.
                    --- Sir Vlad
 #+END_QUOTE
 
+* Introduction
+
+This package provides a powerful surrounding tool.
+It supports *adding*, *deleting* and *changing* pairs.
+This is how it works:
+
+1. You tell isolate how is left side looks like (=[=).
+2. =isolate= /regognizes/ it as part of a pair,
+3. it complete the pair for you (=]=).
+
+If you are adding, it adds the pair,
+if you are deleting, it deletes the pair from buffer.
+
+Basically, isolate provides three ways to regognize a pair:
+
+1. normal pairing (e.g. =(= to =)=, =+= to =+=)
+2. recognize pairs by regexp (e.g. regognize =<xxx>= as the left of a html tag, complete it with =</xxx>= )
+3. recognize pairs by a shortcut (e.g. =org-src= as a shortcut of =#+BEGIN_SRC= and =#+END_SRC=)
+
+As an example for the first case:
+
+#+BEGIN_SRC 
+abc -> (abc -> (abc)
+#+END_SRC
+
+An example for the second case:
+
+By inserting =div>= on the left, isolate completeed the html pair for you.
+
+#+BEGIN_SRC 
+abc -> <div>abc -> <div>abc</div>
+#+END_SRC
+
+And it even recognize a more complex input and completed the pair correctly.
+
+#+BEGIN_SRC 
+abc -> <div class="">abc -> </div>
+#+END_SRC
+
+An example for the third case:
+
+#+BEGIN_SRC 
+abc -> org-srcabc ->
+
+#+BEGIN_SRC 
+abc
+#+END_SRC
+#+END_SRC
+
+Above features also apply to change and delete commands:
+
+The shortcuts are especially useful in deleting:
+
+#+BEGIN_SRC 
+input: <t> -> translates to a complex regexp that matches all html tags.
+
+<p class="">abc</p> -> abc
+#+END_SRC
+
+#+BEGIN_SRC 
+input: <div>
+
+<div><p>abc</p></div> -> <p>abc</p>
+#+END_SRC
+
+Besides these, there is another feature called segementation.
+When you separate your input into segements on the left,
+isolate inverse the order of them on the right.
+
+The separator is ","
+
+#+BEGIN_SRC 
+abc -> 1,2,3abc -> 123abc321
+#+END_SRC
+
+This works for both adding and deleting.
+
+*All of these cool featurea are implemented by regexp matching (except segmentation).*
+*Therefore, you can extend these isolation magics by writing regexp rules!*
+*It's very easy!*
+
+
 * Table of Countents                                                    :TOC:
 
+- [[#introduction][Introduction]]
 - [[#why-isolateel][Why isolate.el?]]
 - [[#spotlight][Spotlight]]
   - [[#add][Add]]
@@ -30,56 +112,98 @@ Customizaion is clear as the fact that I'm not a vampire.
   - [[#shortcuts-for-quick-commands][Shortcuts for quick commands]]
 - [[#contribution][Contribution]]
 
-* Why isolate.el?
-
-The most important feature of =isolate.el= is customization.
-All the fancy matching and shortcuts are actually 
-implemented by customization rather than by adding code. 
-
-While being very powerful, customizationg remains easy to configure: all you need to do
-is alter *three* rule lists.
-
 * Spotlight
   
 ** Add
    
-*features:*
+Command: =isolate-long-add=
+   
+#+BEGIN_SRC 
+HELLO -> <p>HELLO -> <p>HELLO</p>
 
-- quick add (single character) and long add
+HELLO -> <div class="">,<p>HELLO -> <div class=""><p>HELLO</p></div>
 
-- regexp match
-  
-- regexp replace
+HELLO -> <div class="">,\n,<p>,\n,HELLO ->
 
-- segmentation by ","
+<div class="">
+<p>
+HELLO
+</p>
+</div>
 
-- surround with/without space in quick add
+#+END_SRC
+
 
 [[./img/isolate-add-1.gif]]
 
+Command: =isolate-quick-add=
+
+#+BEGIN_SRC 
+input: (
+HELLO -> (HELLO)
+
+input: )
+HELLO -> ( HELLO )
+#+END_SRC
+
 [[./img/isolate-add-2.gif]]
+
+Command: =isolate-long-add=
+
+Featuring shortcuts:
+
+#+BEGIN_SRC 
+HELLO -> org-srcHELLO ->
+
+#+BEGIN_SRC 
+HELLO
+#+END_SRC
+#+END_SRC
 
 [[./img/isolate-add-3.gif]]
 
 ** Delete
-   
-*features:*
 
-- regexp match
+Command: =isolate-long-delete=
 
-- pre configured regexp 
-
-  - =<t>= -> any html tag
-
-  - =<xxx>= -> html tag with name xxx
-
-- pair depth change
-  
-- delete with/without space in quick delete
+#+BEGIN_SRC 
+<t> -> html tag
+<div> -> div tag
+<xxx> -> xxx tag
+#+END_SRC
 
 [[./img/isolate-delete-1.gif]]
 
+Command: =isolate-quick-delete=
+
+#+BEGIN_SRC 
+input: (
+
+(HELLO) -> HELLO
+
+input: )
+
+( HELLO ) -> HELLO
+#+END_SRC
+
 [[./img/isolate-delete-2.gif]]
+
+Command: =isolate-long-delete=
+
+Featuring shortcuts:
+
+#+BEGIN_SRC 
+input: org-src
+
+#+BEGIN_SRC 
+HELLO
+#+END_SRC
+
+->
+
+HELLO
+#+END_SRC
+
 
 [[./img/isolate-delete-3.gif]]
 
@@ -110,9 +234,9 @@ and long commands to =S= operators.
 *** Long add
     
 | C-c C-a | Go to beginning of left side |
-| C-c C=e | Go to end of left side       |
+| C-c C-e | Go to end of left side       |
 | C-c C-c | Finish edit                  |
-| C-c C-q | Abort edit                   |
+| C-c q   | Abort edit                   |
 
 *** Long delete
 
@@ -279,15 +403,17 @@ Detail see `isolate-pair-list'.")
 The last rule list is for quick commands.
 This is how "pair with space" are achieved.
 
-When using quick commands,
-you enters a key,
-but before isolate matches 
-this single character string to a pair,
+When using quick commands you enter a key.
+But before isolate matches 
+this single character to a pair,
 the string goes trhough a translator.
 
 Basically, you can "translate" some predefined
-keys to longer strings, for example
-=)= -> "(, ".
+keys to longer strings, for example:
+
+#+BEGIN_SRC
+) -> "(, " (parans -> parens with space)
+#+END_SRC
 
 The rule list is =isolate-quick-shortcut-list=,
 its default value is:
@@ -321,3 +447,5 @@ right now there aren't much of them.
 
 Also, if you think documentation needs improvement,
 please let my know so I know how to do better.
+
+

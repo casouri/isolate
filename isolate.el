@@ -139,13 +139,15 @@ and enters `evil-insert-state' if nessessary.")
 
 ;;;; Essential
 
-(defun isolate--match-pair (left-segment pair-list)
+(defun isolate--match-pair (left-segment pair-list &optional search)
   "Find matching left and right segment for LEFT-SEGMENT.
 Return a cons of (left . right).
 LEFT-SEGMENT is not everthing left to region,
 but one of the segments separated by `isolate-separator'.
 
 PAIR-LIST is the list in which this function looks for match.
+
+SEARCH means this function is called by delete command.
 
 Return (LEFT-SEGMENT . LEFT-SEGMENT) if nothing matches.
 This function never returns nil."
@@ -156,7 +158,7 @@ This function never returns nil."
              (to-right (alist-get 'to-right pair))
              (condition (alist-get 'condition pair))
              (no-regexp (alist-get 'no-regexp pair))
-             (quote-func (if no-regexp 'regexp-quote 'eval)))
+             (quote-func (if (and search no-regexp) 'regexp-quote 'eval)))
         (when (and (or (not condition) ; no condition
                        (and condition (funcall condition left-segment))) ; condition passes
                    (or (and to-left (equal to-left left-segment)) ; to-left exists & exactly equal
@@ -732,7 +734,8 @@ COUNT is like COUNT in `search-backward-regexp'."
       (dolist (segment (split-string left isolate-separator))
         (let* ((con (isolate--match-pair
                       segment
-                      (append isolate-delete-extended-pair-list isolate-pair-list)))
+                      (append isolate-delete-extended-pair-list isolate-pair-list)
+                      t))
                (left-pattern (car con))
                (right-pattern (cdr con)))
           (isolate--append left-list left-pattern)
