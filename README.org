@@ -64,9 +64,10 @@ ABC -> <div class="">ABC -> </div>
 #+BEGIN_SRC 
 ABC -> org-srcABC ->
 
-#+BEGIN_SRC 
+\#+BEGIN_SRC 
 ABC
-#+END_SRC
+\#+END_SRC
+(the slash is for escaping in org-mode)
 #+END_SRC
 
 *** Delete examples
@@ -76,13 +77,13 @@ Above features also apply to change and delete commands:
 The shortcuts are especially useful in deleting:
 
 #+BEGIN_SRC 
-input: <t> -> translates to a complex regexp that matches all html tags.
+input: <t> -> translates to a regexp that matches all html tags.
 
 <p class="">ABC</p> -> ABC
 #+END_SRC
 
 #+BEGIN_SRC 
-input: <div>
+input: <div> -> only matches div tags
 
 <div><p>ABC</p></div> -> <p>ABC</p>
 #+END_SRC
@@ -169,10 +170,14 @@ Featuring shortcuts:
 #+BEGIN_SRC 
 HELLO -> org-srcHELLO ->
 
-  #+BEGIN_SRC 
-  HELLO
-  #+END_SRC
+\#+BEGIN_SRC 
+HELLO
+\#+END_SRC
+
+(the slash is for escaping in org-mode)
 #+END_SRC
+
+
 
 [[./img/isolate-add-3.gif]]
 
@@ -209,9 +214,11 @@ Featuring shortcuts:
 #+BEGIN_SRC 
 input: org-src
 
-#+BEGIN_SRC 
+\#+BEGIN_SRC 
 HELLO
-#+END_SRC
+\#+END_SRC
+
+(the slash is for escaping in org-mode)
 
 ->
 
