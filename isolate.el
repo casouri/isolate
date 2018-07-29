@@ -371,7 +371,9 @@ For actual command use `isolate-quick-add' or `isolate-add-mode'."
 
 (defun isolate--disable-autoparens (&optional enable)
   "Disable paren auto-completion in `isolate-add-mode'.
-If ENABLE non-nil, reenable them."
+If ENABLE non-nil, reenable them.
+
+It also disable evil."
   (if (not enable)
       (progn
         (setq isolate--evil
