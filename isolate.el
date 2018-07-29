@@ -1,7 +1,32 @@
-;;; isolate.el --- Surrounding with powerful yet easy-to-use customization system.
+;;; isolate.el --- Surrounding tool with flexable customizations.
+;; Copyright (C) 2018 Yuan Fu
+
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;; Author: Yuan Fu <casouri@gmail.com>
+;; URL: https://github.com/casouri/isolate
+;; Version: 1.0.0
+;; Keywords: convenience
+;; Package-Requires: ((emacs "25"))
 
 ;;; Commentary:
 ;; 
+;; This is a surrouding tool.
+;; It features powerful and easy customization system.
+;; You can create complex regexp rules easily.
+;;
+;; More information in README.org.
 
 ;;; Code:
 ;;
@@ -267,9 +292,9 @@ Hit C-c C-c when finished."
   :lighter "ADD"
   :keymap (let ((map (make-sparse-keymap)))
             (define-key map (kbd "C-c C-c") #'isolate-add-finish)
-            (define-key map (kbd "C-c q") #'isolate-add-abort)
-            (define-key map (kbd "C-c a") #'isolate-goto-beginning)
-            (define-key map (kbd "C-c e") #'isolate-goto-end)
+            (define-key map (kbd "C-c C-q") #'isolate-add-abort)
+            (define-key map (kbd "C-c C-a") #'isolate-goto-beginning)
+            (define-key map (kbd "C-c C-e") #'isolate-goto-end)
             map)
   (if isolate-add-mode
       (progn
