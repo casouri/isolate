@@ -48,7 +48,7 @@ Basically, =isolate= provides three ways to regognize a pair:
    
 *** Add examples
 
-*As an example for the first case:*
+**** An example for the first case
 
 Command: =isolate-quick-add=
 
@@ -62,11 +62,11 @@ HELLO -> ( HELLO )
 
 [[./img/isolate-add-2.gif]]
 
-*An example for the second case:*
+**** An example for the second case
 
 By inserting =div>= on the left, isolate completeed the html pair for you.
 
-And it even recognize a more complex input and completed the pair correctly.
+And it even recognizes a more complex input and completed the pair correctly.
 
 Command: =isolate-long-add=
    
@@ -87,7 +87,7 @@ HELLO
 [[./img/isolate-add-1.gif]]
 
 
-*An example for the third case:*
+**** An example for the third case
 
 Command: =isolate-long-add=
 
@@ -104,7 +104,7 @@ HELLO -> org-srcHELLO ->
 
 *** Delete examples
 
-*Above features also apply to change and delete commands:*
+**** Above features also apply to change and delete commands
 
 Command: =isolate-quick-delete=
 
@@ -121,7 +121,7 @@ Command: =isolate-quick-delete=
 [[./img/isolate-delete-2.gif]]
 
 
-*The shortcuts are especially useful in deleting:*
+**** The shortcuts are especially useful in deleting
 
 Command: =isolate-long-delete=
 
@@ -135,7 +135,7 @@ Command: =isolate-long-delete=
 
 Command: =isolate-long-delete=
 
-*Featuring shortcuts:*
+**** Featuring shortcuts appeared above
 
 #+BEGIN_SRC 
 input: org-src
