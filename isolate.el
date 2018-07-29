@@ -449,27 +449,28 @@ Return t if match, nil if no match."
 
 ;;;;; Long delete
 
+(defvar isolate--delete-escape-regexp-alist
+  '(("\\" . "\\\\")
+    ("[" . "\\[")
+    ("." . "\\.")
+    ("*" . "\\*")
+    ("+" . "\\+")
+    ("?" . "\\?")
+    ("^" . "\\^")
+    ("$" . "\\$"))
+  "Used to proper handles escape characters in regexp.")
 
-(defun isolate-delete-search ()
-  "Search for pair to delete."
-  (interactive)
-  
-  (setq isolate--delete-left
-        (completing-read "Enter left segment: "
-                         nil
-                         ;; TODO figure out hist
-                         nil nil nil))
-  (setq isolate--search-history
-        (delete isolate--delete-left isolate--search-history))
-  (push isolate--delete-left isolate--search-history)
-  (when (setq isolate--search-success
-              (isolate--search-pair isolate--delete-left))
-    (isolate--delete-update-highlight)))
+(defun isolate--delete-escape-regexp (pair)
+  "Handles regexp escaping of PAIR."
+  (let ((left (car pair))
+        (right (cdr pair)))
+    (cons (alist-get left isolate--delete-escape-regexp-alist left nil #'equal)
+          (alist-get right isolate--delete-escape-regexp-alist right nil #'equal))))
+
 
 (defvar isolate--delete-minibuffer-map (let ((map minibuffer-local-map))
                                          (define-key map (kbd "C-p") #'isolate-search-up)
                                          (define-key map (kbd "C-n") #'isolate-search-down)
-                                         (define-key map (kbd "C-M-p") #'isolate--delete-hook)
                                          map)
   "The keymap used in `isolate-long-delete'.")
 
@@ -485,7 +486,6 @@ Return t if match, nil if no match."
 (defun isolate--delete-hook ()
   "Function run in `post-command-hook'."
   ;; TODO add check for minibuffer window
-  (interactive)
   (isolate--delete-with-left
    left
    (with-current-buffer isolate--delete-main-buffer
@@ -628,12 +628,11 @@ This is simple version because left-regexp = right-regexp."
             left-end
             right-beg
             right-end
-            origin-point
-            ;; used in step 2 when handels COUNT
-            old-right-count
-            new-right-count)
+            origin-point)
+        (setq origin-point (goto-char (or point (point))))
         (dotimes (var count)
           (isolate--jump-backward))
+        (goto-char origin-point)
         (dotimes (var count)
           (isolate--jump-forward))
         (isolate--setup-marker left-beg
@@ -721,9 +720,10 @@ COUNT is like COUNT in `search-backward-regexp'."
           (right-count 0))
       ;; construct left and right regexp
       (dolist (segment (split-string left isolate-separator))
-        (let* ((con (isolate--match-pair
-                     segment
-                     (append isolate-delete-extended-pair-list isolate-pair-list)))
+        (let* ((con (isolate--delete-escape-regexp
+                     (isolate--match-pair
+                      segment
+                      (append isolate-delete-extended-pair-list isolate-pair-list))))
                (left-pattern (car con))
                (right-pattern (cdr con)))
           (isolate--append left-list left-pattern)
