@@ -14,52 +14,62 @@ Customizaion is clear as the fact that I'm not a vampire.
 
 * Introduction
 
+** How it works
+
 This package provides a powerful surrounding tool.
-It supports *adding*, *deleting* and *changing* pairs.
+It helps you *add*, *delete* and *change* pairs.
+
 This is how it works:
 
-1. You tell isolate how is left side looks like (=[=).
-2. =isolate= /regognizes/ it as part of a pair,
-3. it complete the pair for you (=]=).
+1. You tell isolate how is left side looks like (e.g. =[= ).
+2. =isolate= /regognizes/ it as the left part of a pair, (e.g. =[ & ]= )
+3. it complete the pair for you (e.g. =]= ).
+   
+** Recognize?
 
 If you are adding, it adds the pair,
-if you are deleting, it deletes the pair from buffer.
+if you are deleting, it searches for the pair 
+and delete it from the buffer.
 
-Basically, isolate provides three ways to regognize a pair:
+Basically, =isolate= provides three ways to regognize a pair:
 
 1. normal pairing (e.g. =(= to =)=, =+= to =+=)
 2. recognize pairs by regexp (e.g. regognize =<xxx>= as the left of a html tag, complete it with =</xxx>= )
 3. recognize pairs by a shortcut (e.g. =org-src= as a shortcut of =#+BEGIN_SRC= and =#+END_SRC=)
+   
+*** Add examples
 
-As an example for the first case:
+*As an example for the first case:*
 
 #+BEGIN_SRC 
-abc -> (abc -> (abc)
+ABC -> (ABC -> (ABC)
 #+END_SRC
 
-An example for the second case:
+*An example for the second case:*
 
 By inserting =div>= on the left, isolate completeed the html pair for you.
 
 #+BEGIN_SRC 
-abc -> <div>abc -> <div>abc</div>
+ABC -> <div>ABC -> <div>ABC</div>
 #+END_SRC
 
-And it even recognize a more complex input and completed the pair correctly.
+And it even recognize a more complex input and completed the pair correctly:
 
 #+BEGIN_SRC 
-abc -> <div class="">abc -> </div>
+ABC -> <div class="">ABC -> </div>
 #+END_SRC
 
-An example for the third case:
-
-#+BEGIN_SRC 
-abc -> org-srcabc ->
+*An example for the third case:*
 
 #+BEGIN_SRC 
-abc
+ABC -> org-srcABC ->
+
+#+BEGIN_SRC 
+ABC
 #+END_SRC
 #+END_SRC
+
+*** Delete examples
 
 Above features also apply to change and delete commands:
 
@@ -68,14 +78,16 @@ The shortcuts are especially useful in deleting:
 #+BEGIN_SRC 
 input: <t> -> translates to a complex regexp that matches all html tags.
 
-<p class="">abc</p> -> abc
+<p class="">ABC</p> -> ABC
 #+END_SRC
 
 #+BEGIN_SRC 
 input: <div>
 
-<div><p>abc</p></div> -> <p>abc</p>
+<div><p>ABC</p></div> -> <p>ABC</p>
 #+END_SRC
+
+** Segmentation
 
 Besides these, there is another feature called segementation.
 When you separate your input into segements on the left,
@@ -84,14 +96,16 @@ isolate inverse the order of them on the right.
 The separator is ","
 
 #+BEGIN_SRC 
-abc -> 1,2,3abc -> 123abc321
+ABC -> 1,2,3ABC -> 123ABC321
 #+END_SRC
 
 This works for both adding and deleting.
 
-*All of these cool featurea are implemented by regexp matching (except segmentation).*
-*Therefore, you can extend these isolation magics by writing regexp rules!*
-*It's very easy!*
+** You can extend it!
+
+All of these cool featurea are implemented by regexp matching (except segmentation).
+Therefore, you can extend these isolation magics by writing regexp rules!
+It's very easy!
 
 
 * Table of Countents                                                    :TOC:
