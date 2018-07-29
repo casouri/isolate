@@ -63,12 +63,10 @@ ABC -> <div class="">ABC -> </div>
 
 #+BEGIN_SRC 
 ABC -> org-srcABC ->
-
-\#+BEGIN_SRC 
-ABC
-\#+END_SRC
-(the slash is for escaping in org-mode)
 #+END_SRC
+=#+BEGIN_SRC= 
+=ABC=
+=#+END_SRC=
 
 *** Delete examples
 
@@ -112,7 +110,10 @@ It's very easy!
 * Table of Countents                                                    :TOC:
 
 - [[#introduction][Introduction]]
-- [[#why-isolateel][Why isolate.el?]]
+  - [[#how-it-works][How it works]]
+  - [[#recognize][Recognize?]]
+  - [[#segmentation][Segmentation]]
+  - [[#you-can-extend-it][You can extend it!]]
 - [[#spotlight][Spotlight]]
   - [[#add][Add]]
   - [[#delete][Delete]]
@@ -134,11 +135,11 @@ It's very easy!
 Command: =isolate-long-add=
    
 #+BEGIN_SRC 
-HELLO -> <p>HELLO -> <p>HELLO</p>
+1. HELLO -> <p>HELLO -> <p>HELLO</p>
 
-HELLO -> <div class="">,<p>HELLO -> <div class=""><p>HELLO</p></div>
+2. HELLO -> <div class="">,<p>HELLO -> <div class=""><p>HELLO</p></div>
 
-HELLO -> <div class="">,\n,<p>,\n,HELLO ->
+3. HELLO -> <div class="">,\n,<p>,\n,HELLO ->
 
 <div class="">
 <p>
@@ -154,10 +155,10 @@ HELLO
 Command: =isolate-quick-add=
 
 #+BEGIN_SRC 
-input: (
+1. input: (
 HELLO -> (HELLO)
 
-input: )
+2. input: )
 HELLO -> ( HELLO )
 #+END_SRC
 
@@ -169,13 +170,10 @@ Featuring shortcuts:
 
 #+BEGIN_SRC 
 HELLO -> org-srcHELLO ->
-
-\#+BEGIN_SRC 
-HELLO
-\#+END_SRC
-
-(the slash is for escaping in org-mode)
 #+END_SRC
+=#+BEGIN_SRC= 
+=HELLO=
+=#+END_SRC=
 
 
 
@@ -186,9 +184,9 @@ HELLO
 Command: =isolate-long-delete=
 
 #+BEGIN_SRC 
-<t> -> html tag
-<div> -> div tag
-<xxx> -> xxx tag
+1. <t> -> html tag
+2. <div> -> div tag
+3. <xxx> -> xxx tag
 #+END_SRC
 
 [[./img/isolate-delete-1.gif]]
@@ -196,11 +194,11 @@ Command: =isolate-long-delete=
 Command: =isolate-quick-delete=
 
 #+BEGIN_SRC 
-input: (
+1. input: (
 
 (HELLO) -> HELLO
 
-input: )
+2. input: )
 
 ( HELLO ) -> HELLO
 #+END_SRC
@@ -213,15 +211,12 @@ Featuring shortcuts:
 
 #+BEGIN_SRC 
 input: org-src
-
-\#+BEGIN_SRC 
-HELLO
-\#+END_SRC
-
-(the slash is for escaping in org-mode)
-
+#+END_SRC
+=#+BEGIN_SRC= 
+=HELLO=
+=#+END_SRC=
+#+BEGIN_SRC 
 ->
-
 HELLO
 #+END_SRC
 
