@@ -5,9 +5,13 @@ It supports adding, deleting and changing pairs.
 
 I took the idea of regex from [[https://github.com/tslilc/siege-mode][siege-mode]], very cool package!
 
-#+BEGIN_SRC
-front cover on the way
-#+END_SRC
+[[./img/isolate.png]]
+
+#+BEGIN_QUOTE
+Easy as 1-2-3
+
+        --- Sir Vlad
+#+END_QUOTE
 
 * Table of Countents                                                    :TOC:
 
