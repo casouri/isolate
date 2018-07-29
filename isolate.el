@@ -28,16 +28,16 @@ By \"character\" I mean \"a string that has a legnth of 1\"."
 
 ;;;; Public
 
-(defvar-local isolate--left-beg nil
+(defvar isolate--left-beg nil
   "Mark of beginning of left segments.")
 
-(defvar-local isolate--left-end nil
+(defvar isolate--left-end nil
   "Mark of end of left segments.")
 
-(defvar-local isolate--right-beg nil
+(defvar isolate--right-beg nil
   "Mark of beginning of right segments.")
 
-(defvar-local isolate--right-end nil
+(defvar isolate--right-end nil
   "Mark of end of right segments.")
 
 (defvar isolate-quick-shortcut-list
@@ -303,10 +303,10 @@ Hit C-c C-c when finished."
     (setq right (apply 'concat right-list))
     (cons actual-left right)))
 
-(defvar-local isolate--left-old-length 0
+(defvar isolate--left-old-length 0
   "Length of left before process.")
 
-(defvar-local isolate--old-cursor-pos 0
+(defvar isolate--old-cursor-pos 0
   "Cursor position before process.")
 
 (defun isolate--add-hook ()
@@ -405,14 +405,14 @@ If ENABLE non-nil, reenable them."
 
 (defvar isolate-delete-extended-pair-list
   '(((from . "<t>") (to-left . "<[^/]+?>") (to-right . "</.+?>"))
-    ((from . "<\\([^ ]+\\).*>")
-     (to-left . (lambda (user-input) (format "<%s *.*>" (match-string 1 user-input))))
-     (to-right . (lambda (user-input) (format "</%s>" (match-string 1 user-input))))))
+    ((from . "<\\([^ ]+\\)[^<>]*>")
+     (to-left . (lambda (user-input) (format "<%s *.*?>" (match-string 1 user-input))))
+     (to-right . (lambda (user-input) (format "< *?/%s *?>" (match-string 1 user-input))))))
   "Rule list.
 Detail see `isolate-pair-list'")
 
 
-(defvar-local isolate--search-level 1
+(defvar isolate--search-level 1
   "The level of matching pairs that isolate searches.
 Starts from 1, passed to search function as COUNT.
 Don't forget to reset to 1 when exit `isolate-delete-mode'.")
@@ -420,7 +420,7 @@ Don't forget to reset to 1 when exit `isolate-delete-mode'.")
 (defvar isolate--search-history nil
   "History of long delete(change) search.")
 
-(defvar-local isolate--search-success nil
+(defvar isolate--search-success nil
   "If nil, don't delete.")
 
 ;;;; Command
@@ -488,7 +488,7 @@ Return t if match, nil if no match."
    left
    (with-current-buffer isolate--delete-main-buffer
      (when (setq isolate--search-success
-                 (isolate--search-pair left))
+                 (isolate--search-pair left isolate--search-level))
        (isolate--delete-update-highlight)))))
 
 (defvar isolate--delete-minibuffer-hook-stage 0
@@ -550,33 +550,37 @@ Stage 3: remove `isolate--delete-hook' from `post-command-hook'."
 (defun isolate-search-up ()
   "Search one level of matching pairs up."
   (interactive)
-  (isolate--delete-with-left
-   left
-   (with-current-buffer isolate--delete-main-buffer
-    (setq isolate--search-level (1+ isolate--search-level))
-    (if (isolate--search-pair left isolate--search-level)
-        (progn
-          (isolate--delete-update-highlight)
-          (message "Up one level"))
-      ;; failed, set level back
-      (setq isolate--search-level (1- isolate--search-level))
-      (message "No further match")))))
+  (setq isolate--search-level
+        (isolate--delete-with-left
+         left
+         (with-current-buffer isolate--delete-main-buffer
+           (setq isolate--search-level (1+ isolate--search-level))
+           (if (isolate--search-pair left isolate--search-level)
+               (progn
+                 (isolate--delete-update-highlight)
+                 (message "Up one level"))
+             ;; failed, set level back
+             (setq isolate--search-level (1- isolate--search-level))
+             (message "No further match"))
+           isolate--search-level))))
 
 (defun isolate-search-down ()
   "Search one level of matching pairs down."
   (interactive)
-  (isolate--delete-with-left
-   left
-   (with-current-buffer isolate--delete-main-buffer
-     (setq isolate--search-level (1- isolate--search-level))
-     (if (and (>= isolate--search-level 1)
-              (isolate--search-pair left isolate--search-level))
-         (progn
-           (isolate--delete-update-highlight)
-           (message "Down one level"))
-       ;; failed, set level back
-       (setq isolate--search-level (1+ isolate--search-level))
-       (message "No furher match")))))
+  (setq isolate--search-level
+        (isolate--delete-with-left
+         left
+         (with-current-buffer isolate--delete-main-buffer
+           (setq isolate--search-level (1- isolate--search-level))
+           (if (and (>= isolate--search-level 1)
+                    (isolate--search-pair left isolate--search-level))
+               (progn
+                 (isolate--delete-update-highlight)
+                 (message "Down one level"))
+             ;; failed, set level back
+             (setq isolate--search-level (1+ isolate--search-level))
+             (message "No furher match"))
+           isolate--search-level))))
 
 ;;;; Function
 
@@ -755,7 +759,7 @@ COUNT is like COUNT in `search-backward-regexp'."
 
 ;;;; Variable
 
-(defvar-local isolate--changing nil
+(defvar isolate--changing nil
   "If this is t, `isolate--add-setup-marker' doesn't alter markers.")
 
 ;;;; Command
