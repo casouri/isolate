@@ -429,7 +429,7 @@ It also disable evil."
      (to-left . (lambda (user-input) (format "<%s *.*?>" (match-string 1 user-input))))
      (to-right . (lambda (user-input) (format "< *?/%s *?>" (match-string 1 user-input))))))
   "Rule list.
-Detail see `isolate-pair-list'")
+Detail see `isolate-pair-list'.")
 
 
 (defvar isolate--search-level 1
