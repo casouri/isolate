@@ -30,9 +30,9 @@ It helps you *add*, *delete* and *change* pairs.
 
 This is how it works:
 
-1. You tell isolate how is left side looks like (e.g. =[= ).
-2. =isolate= /regognizes/ it as the left part of a pair, (e.g. =[ & ]= )
-3. it complete the pair for you (e.g. =]= ).
+1. You tell isolate how is left side looks like e.g. =[=.
+2. =isolate= /regognizes/ it as the left part of a pair, e.g. =[ & ]=.
+3. it complete the pair for you, (e.g. =]=.
    
 ** Recognize?
 
@@ -42,9 +42,9 @@ and delete it from the buffer.
 
 Basically, =isolate= provides three ways to regognize a pair:
 
-1. normal pairing (e.g. =(= to =)=, =+= to =+=)
-2. recognize pairs by regexp (e.g. regognize =<xxx>= as the left of a html tag, complete it with =</xxx>= )
-3. recognize pairs by a shortcut (e.g. =org-src= as a shortcut of =#+BEGIN_SRC= and =#+END_SRC=)
+1. normal pairing, e.g. =(= to =)=, =+= to =+=.
+2. recognize pairs by regexp, e.g. regognize =<xxx>= as the left of a html tag, complete it with =</xxx>=.
+3. recognize pairs by a shortcut, e.g. =org-src= as a shortcut of =#+BEGIN_SRC= and =#+END_SRC=.
    
 *** Add examples
 
