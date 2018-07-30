@@ -34,11 +34,11 @@ This is how it works:
 2. =isolate= /regognizes/ it as the left part of a pair, e.g. =[ & ]=.
 3. it complete the pair for you, (e.g. =]=.
    
-** Recognize?
-
 If you are adding, it adds the pair,
 if you are deleting, it searches for the pair 
 and delete it from the buffer.
+
+** Recognize?
 
 Basically, =isolate= provides three ways to regognize a pair:
 
