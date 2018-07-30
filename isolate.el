@@ -83,7 +83,7 @@ If 'condition exists and returns nil, the shortcut will be ignored.")
 Each element is an alist with five possible keys: 'from, 'to-left, to-right, no-regexp and condition.
 Only ('from or 'to-left) and 'to-right are required.
 
-'right is required, one from 'from and 'to-left is required,
+'right is required, one of 'from and 'to-left is required,
 'condition is optional.
 
 1. If only 'to-left, and it equal to user input,
@@ -91,7 +91,7 @@ and matches and condition passes,
 'to-left is used as left of pair,
 'to-right is used as right of pair.
 
-2. If only 'from, and the regexp of from matches user input,
+2. If only 'from, and the regexp of 'from matches user input,
 user-input is used as left of pair
 and 'to-right is used as right of pair.
 
