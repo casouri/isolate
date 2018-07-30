@@ -420,6 +420,17 @@ Each shortcut have three possible keys: 'from, 'to and 'condition.
 If 'condition exists and returns nil, the shortcut will be ignored.")
 #+END_SRC
 
+
+* Similar packages
+
+- [[https://github.com/emacs-evil/evil-surround][evil-surround]]
+- [[https://github.com/cute-jumper/embrace.el][embrace]]
+- [[https://github.com/tslilc/siege-mode][siege-mode]] 
+  
+** Recommended to use with isolate
+
+- [[https://shaunlebron.github.io/parinfer/][parinfer]]
+
 * Contribution
 
 Contribution is welcomed!
