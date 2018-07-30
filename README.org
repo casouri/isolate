@@ -268,7 +268,7 @@ The matching rule is in =isolate-pair-list=.
 
 *How does isolate uses this rule list:*
 
-For add functions, isolates record user input (the left side)
+For add functions, isolates record user input (the left side),
 calculates the right side, insert right side and the end of region.
 
 The calculating part is where the rule list apply.
@@ -298,7 +298,7 @@ Here is the default value and documentation of it:
 Each element is an alist with five possible keys: 'from, 'to-left, to-right, no-regexp and condition.
 Only ('from or 'to-left) and 'to-right are required.
 
-'right is required, one from 'from and 'to-left is required,
+'right is required, one of 'from and 'to-left is required,
 'condition is optional.
 
 1. If only 'to-left, and it equal to user input,
@@ -306,7 +306,7 @@ and matches and condition passes,
 'to-left is used as left of pair,
 'to-right is used as right of pair.
 
-2. If only 'from, and the regexp of from matches user input,
+2. If only 'from, and the regexp of 'from matches user input,
 user-input is used as left of pair
 and 'to-right is used as right of pair.
 
@@ -318,7 +318,7 @@ and 'to-right is used as right of pair.
 In addition, 'to-left and 'to-right can be a function
 that takes user input as argument and return a string.
 
-If they are functions, and you have a regex 'from,
+If they are functions, and you have a regexp 'from,
 you can use (match-string num user-input) to get
 regexp matched groups.
 
@@ -327,7 +327,7 @@ that takes user input as argument and return a boolean.
 You can use it to check major modes, etc.
 
 'no-regexp only affects delete commands,
-if you want to search the matche pair plainly by text
+if you want to search the matched pair plainly by text
 rather than by regexp, add \(no-regexp . t\).
 
 This is especially important for pairs that contains
@@ -341,11 +341,11 @@ Also don't forget regexp escapes.")
 ** Delete function's extended rule list.
 
 There is also =isolate-delete-extended-pair-list=.
-This rule list if used by delete functions
+This rule list is used by delete functions
 in addition to =isolate-pair-list=.
 So it's called "extended" list.
 The pairs in this list are tried first, then
-the =isolate-pair-list=.
+are that of =isolate-pair-list=.
 
 *How does delete function uses rule lists:*
 
@@ -427,15 +427,10 @@ Especially matching rules.
 As you can see,
 right now there aren't much of them.
 
+For examples, there can be more latex
+pairs, but I don't use latex so I don't
+know any.
+
 Also, if you think documentation needs improvement,
 please let my know so I know how to do better.
-
-
-
-
-
-<div class="">,<p>HELLO</p></div>
-
-
-
 
