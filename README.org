@@ -1,6 +1,6 @@
 #+TITLE: isolate.el
 
-#+ATTR_HTML: width="300px"
+#+ATTR_HTML: width="100px"
 [[./img/isolate.png]]
 
 #+BEGIN_QUOTE
@@ -8,7 +8,7 @@ This package provides a powerful surrounding tool.
 It helps you to *add*, *delete* and *change* pairs.
 #+END_QUOTE
 
-#+ATTR_HTML: width="300px"
+#+ATTR_HTML: width="100px"
 [[./img/catcher.png]]
 
 * Table of Contents                                                    :TOC:
