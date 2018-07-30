@@ -30,7 +30,7 @@ It helps you to *add*, *delete* and *change* pairs.
 
 This is how it works:
 
-1. You tell isolate how is left side looks like e.g. =[=.
+1. You tell isolate how is left side looks like, e.g. =[=.
 2. =isolate= /regognizes/ it as the left part of a pair, e.g. =[ & ]=.
 3. it complete the pair for you, (e.g. =]=.
    
