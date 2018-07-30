@@ -1,12 +1,15 @@
 #+TITLE: isolate.el
 
 [[./img/isolate.png]]
-<img src="./img/isolate.png" width="100">
+
+\\
 
 #+BEGIN_QUOTE
 This package provides a powerful surrounding tool.
 It helps you to *add*, *delete* and *change* pairs.
 #+END_QUOTE
+
+\\
 
 * Table of Contents                                                    :TOC:
 - [[#why-you-want-it][Why you want it]]
@@ -23,8 +26,10 @@ It helps you to *add*, *delete* and *change* pairs.
   - [[#rule-list][Rule list]]
   - [[#delete-functions-extended-rule-list][Delete function's extended rule list.]]
   - [[#shortcuts-for-quick-commands][Shortcuts for quick commands]]
-- [[#similar-packages][Similar packages]]
-  - [[#recommended-to-use-with-isolate][Recommended to use with isolate]]
+- [[#comparison-with-alternatives][Comparison with alternatives]]
+  - [[#evil-surround][evil-surround]]
+  - [[#embrace][embrace]]
+  - [[#siege-mode][siege-mode]]
 - [[#contribution][Contribution]]
 
 * Why you want it
@@ -32,7 +37,7 @@ It helps you to *add*, *delete* and *change* pairs.
 - Powerful :: It can recognize complex input, for example, html tags.
 - Straight forward :: Each action (add/delete/change) has two variants:
                       =quick= and =long=. =quick= takes one key like =(= and =long=
-                      takes any length of input like =<div class=""=.
+                      takes a longer input like ~<div class="">~.
                       
 - Easily extendable :: You can define new complex pairs easily by wrting regexp.
 
@@ -186,7 +191,6 @@ All of these cool featurea are implemented by regexp matching (except segmentati
 Therefore, you can extend these isolation magics by writing regexp rules!
 It's very easy!
 
-
 * Install
 
 =isolate= is not in melpa,
@@ -250,6 +254,32 @@ surrounded-text
 
 =)=, =]=, =}= and =>= are translated to pair with space:
 =( surrounded-text )=
+
+* Comparison with alternatives
+
+** [[https://github.com/emacs-evil/evil-surround][evil-surround]]                    
+
+|                          | evil-surround                   | isolate                                                  |
+|--------------------------+---------------------------------+----------------------------------------------------------|
+| requires evil            | yes                             | no                                                       |
+| fiddle with text objects | yes                             | no (straight forward!)                                   |
+| extending                | write hooks for each major mode | specify major mode (and other) condition(s) in rule list |
+| regexp                   | no                              | yes                                                      |
+
+** [[https://github.com/cute-jumper/embrace.el][embrace]]
+
+|           | evil-surround               | isolate                                                  |
+|-----------+-----------------------------+----------------------------------------------------------|
+| extending | embrace-language-minor-mode | specify major mode (and other) condition(s) in rule list |
+| regexp    | no                          | yes                                                      |
+
+** [[https://github.com/tslilc/siege-mode][siege-mode]] 
+  
+|           | evil-surround    | isolate                                                  |
+|-----------+------------------+----------------------------------------------------------|
+| extending | I'm nor familiar | specify major mode (and other) condition(s) in rule list |
+| regexp    | yes              | yes                                                      |
+| abilities | add              | add, change, delete                                      |
 
 * Customizaion
 
@@ -414,16 +444,6 @@ Each shortcut have three possible keys: 'from, 'to and 'condition.
 If 'condition exists and returns nil, the shortcut will be ignored.")
 #+END_SRC
 
-
-* Similar packages
-
-- [[https://github.com/emacs-evil/evil-surround][evil-surround]]
-- [[https://github.com/cute-jumper/embrace.el][embrace]]
-- [[https://github.com/tslilc/siege-mode][siege-mode]] 
-  
-** Recommended to use with isolate
-
-- [[https://shaunlebron.github.io/parinfer/][parinfer]]
 
 * Contribution
 
