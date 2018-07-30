@@ -1,7 +1,5 @@
 #+TITLE: isolate.el
 
-[[./img/isolate.png]]
-
 \\
 
 #+BEGIN_QUOTE
@@ -10,6 +8,9 @@ It helps you to *add*, *delete* and *change* pairs.
 #+END_QUOTE
 
 \\
+
+[[./img/isolate.png]]
+
 
 * Table of Contents                                                    :TOC:
 - [[#why-you-want-it][Why you want it]]
