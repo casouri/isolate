@@ -1,32 +1,47 @@
 #+TITLE: isolate.el
 
-(de)isolate like a wizard.
-
-Credit: I took the idea of regexp from [[https://github.com/tslilc/siege-mode][siege-mode]], it's a cool package!
-
+#+ATTR_HTML: width="300px"
 [[./img/isolate.png]]
 
 #+BEGIN_QUOTE
-Customizaion is clear as the fact that I'm not a vampire.
-
-                   --- Sir Vlad
+This package provides a powerful surrounding tool.
+It helps you to *add*, *delete* and *change* pairs.
 #+END_QUOTE
 
+#+ATTR_HTML: width="300px"
 [[./img/catcher.png]]
 
+* Table of Contents                                                    :TOC:
+- [[#why-you-want-it][Why you want it]]
+- [[#introduction][Introduction]]
+  - [[#how-it-works][How it works]]
+  - [[#recognize][Recognize?]]
+  - [[#segmentation][Segmentation]]
+  - [[#you-can-extend-it][You can extend it!]]
+- [[#install][Install]]
+- [[#usage][Usage]]
+  - [[#segmentation][Segmentation]]
+  - [[#quick-command-shortcuts][Quick command shortcuts]]
+- [[#customizaion][Customizaion]]
+  - [[#rule-list][Rule list]]
+  - [[#delete-functions-extended-rule-list][Delete function's extended rule list.]]
+  - [[#shortcuts-for-quick-commands][Shortcuts for quick commands]]
+- [[#similar-packages][Similar packages]]
+  - [[#recommended-to-use-with-isolate][Recommended to use with isolate]]
+- [[#contribution][Contribution]]
 
 * Why you want it
 
-- Powerful
-- Magickal
-- Easily extended
+- Powerful :: It can recognize complex input, for example, html tags.
+- Straight forward :: Each action (add/delete/change) has two variants:
+                      =quick= and =long=. =quick= takes one key like =(= and =long=
+                      takes any length of input like =<div class=""=.
+                      
+- Easily extendable :: You can define new complex pairs easily by wrting regexp.
 
 * Introduction
 
 ** How it works
-
-This package provides a powerful surrounding tool.
-It helps you to *add*, *delete* and *change* pairs.
 
 This is how it works:
 
@@ -174,24 +189,6 @@ All of these cool featurea are implemented by regexp matching (except segmentati
 Therefore, you can extend these isolation magics by writing regexp rules!
 It's very easy!
 
-
-* Table of Countents                                                    :TOC:
-
-- [[#why-you-want-it][Why you want it]]
-- [[#introduction][Introduction]]
-  - [[#how-it-works][How it works]]
-  - [[#recognize][Recognize?]]
-  - [[#segmentation][Segmentation]]
-  - [[#you-can-extend-it][You can extend it!]]
-- [[#install][Install]]
-- [[#usage][Usage]]
-  - [[#segmentation][Segmentation]]
-  - [[#quick-command-shortcuts][Quick command shortcuts]]
-- [[#customizaion][Customizaion]]
-  - [[#rule-list][Rule list]]
-  - [[#delete-functions-extended-rule-list][Delete function's extended rule list.]]
-  - [[#shortcuts-for-quick-commands][Shortcuts for quick commands]]
-- [[#contribution][Contribution]]
 
 * Install
 
