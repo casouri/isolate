@@ -2,10 +2,10 @@
 
 \\
 
-#+BEGIN_QUOTE
 This package provides a powerful surrounding tool.
 It helps you to *add*, *delete* and *change* pairs.
-#+END_QUOTE
+
+Inspired by [[https://github.com/tslilc/siege-mode/blob/master/siege-mode.el][siege-mode]].
 
 \\
 
