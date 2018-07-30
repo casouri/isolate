@@ -103,7 +103,7 @@ and 'to-right is used as right of pair.
 In addition, 'to-left and 'to-right can be a function
 that takes user input as argument and return a string.
 
-If they are functions, and you have a regex 'from,
+If they are functions, and you have a regexp 'from,
 you can use (match-string num user-input) to get
 regexp matched groups.
 
@@ -112,7 +112,7 @@ that takes user input as argument and return a boolean.
 You can use it to check major modes, etc.
 
 'no-regexp only affects delete commands,
-if you want to search the matche pair plainly by text
+if you want to search the matched pair plainly by text
 rather than by regexp, add \(no-regexp . t\).
 
 This is especially important for pairs that contains
