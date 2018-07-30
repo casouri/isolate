@@ -2,7 +2,7 @@
 
 (de)isolate like a wizard.
 
-Credit: I took the idea of regex from [[https://github.com/tslilc/siege-mode][siege-mode]], very cool package!
+Credit: I took the idea of regex from [[https://github.com/tslilc/siege-mode][siege-mode]], it's a cool package!
 
 [[./img/isolate.png]]
 
