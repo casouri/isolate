@@ -82,7 +82,7 @@ HELLO -> ( HELLO )
 
 **** An example for the second case
 
-By inserting =div>= on the left, isolate completeed the html pair for you.
+By inserting =div>= on the left, isolate completes the html pair for you.
 
 And it even recognizes a more complex input and completed the pair correctly.
 
