@@ -264,14 +264,14 @@ surrounded-text
 
 ** [[https://github.com/cute-jumper/embrace.el][embrace]]
 
-|           | evil-surround               | isolate                                                  |
+|           | embrace                     | isolate                                                  |
 |-----------+-----------------------------+----------------------------------------------------------|
 | extending | embrace-language-minor-mode | specify major mode (and other) condition(s) in rule list |
 | regexp    | no                          | yes                                                      |
 
 ** [[https://github.com/tslilc/siege-mode][siege-mode]]
 
-|           | evil-surround    | isolate                                                  |
+|           | siege | isolate                                                  |
 |-----------+------------------+----------------------------------------------------------|
 | extending | I'm nor familiar | specify major mode (and other) condition(s) in rule list |
 | regexp    | yes              | yes                                                      |
