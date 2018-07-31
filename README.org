@@ -91,7 +91,7 @@ The separator is "," by default.
 ABC -> 1,2,3ABC -> 123ABC321
 #+END_SRC
 
-By inserting =div>= on the left, isolate completes the html pair for you.
+By inserting =<div>= on the left, isolate completes the html pair for you.
 
 And it even recognizes a more complex input and completed the pair correctly.
 
