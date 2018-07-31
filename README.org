@@ -6,7 +6,7 @@ This package provides a powerful surrounding tool.
 It helps you to *add*, *delete* and *change* pairs.
 It is:
 
-- Powerful :: =isolate= can recognize complex input like html tags.
+- Powerful :: =isolate= can recognize complex inputs like html tags.
 - Straight forward :: Each action (add/delete/change) has two variants:
                       =quick= and =long=. =quick= takes one key like =(= and =long=
                       takes a longer input like ~<div class="">~.
