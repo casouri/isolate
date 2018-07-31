@@ -283,6 +283,53 @@ surrounded-text
 
 The biggest part!
 
+** Shortcuts for quick commands
+
+The most useful rule list might be quick command shortcuts list.
+This is how "pair with space" are achieved.
+
+When using quick commands you enter a key.
+But before isolate matches
+this single character to a pair,
+the string goes trhough a translator.
+
+Basically, you can "translate" some predefined
+keys to longer strings, for example:
+
+#+BEGIN_SRC
+) -> "(, " (parans -> parens with space)
+#+END_SRC
+
+*Personalize it*
+
+Since normally you don't surround anything with =a=, =c=, =x=, etc,
+you can bind your personal shortcuts to them!
+
+How about binding =s= to =#+BEGIN_SRC= and =#+END_SRC=?
+
+The rule list is =isolate-quick-shortcut-list=,
+its default value is:
+
+#+BEGIN_SRC emacs-lisp
+(defvar isolate-quick-shortcut-list
+  '(((from . "]") (to . "[, "))
+    ((from . ")") (to . "(, "))
+    ((from . "}") (to . "{, "))
+    ((from . ">") (to . "<, "))
+    )
+  "Shortcuts for `isolate-quick-xxx' functions.
+
+For example, by default \"]\" is mapped to \"[ \", etc.
+
+Each element is an alist representing a shortcut.
+Each shortcut have three possible keys: 'from, 'to and 'condition.
+'from and 'to are strings \(not regexp!\),
+
+'condition is a function that takes user input as argument.
+'condition is optional.
+If 'condition exists and returns nil, the shortcut will be ignored.")
+#+END_SRC
+
 ** Rule list
 
 The matching rule is in =isolate-pair-list=.
@@ -400,58 +447,6 @@ Here is the default value:
   "Rule list.
 Detail see `isolate-pair-list'.")
 
-#+END_SRC
-
-** Shortcuts for quick commands
-
-The last rule list is for quick commands.
-This is how "pair with space" are achieved.
-
-When using quick commands you enter a key.
-But before isolate matches
-this single character to a pair,
-the string goes trhough a translator.
-
-Basically, you can "translate" some predefined
-keys to longer strings, for example:
-
-#+BEGIN_SRC
-) -> "(, " (parans -> parens with space)
-#+END_SRC
-
------
-
-*Personalize it*
-
-Since normally you don't surround anything with =a=, =c=, =x=, etc,
-you can bind your personal shortcuts to them!
-
-How about binding =s= to =#+BEGIN_SRC= and =#+END_SRC=?
-
------
-
-
-The rule list is =isolate-quick-shortcut-list=,
-its default value is:
-
-#+BEGIN_SRC emacs-lisp
-(defvar isolate-quick-shortcut-list
-  '(((from . "]") (to . "[, "))
-    ((from . ")") (to . "(, "))
-    ((from . "}") (to . "{, "))
-    ((from . ">") (to . "<, "))
-    )
-  "Shortcuts for `isolate-quick-xxx' functions.
-
-For example, by default \"]\" is mapped to \"[ \", etc.
-
-Each element is an alist representing a shortcut.
-Each shortcut have three possible keys: 'from, 'to and 'condition.
-'from and 'to are strings \(not regexp!\),
-
-'condition is a function that takes user input as argument.
-'condition is optional.
-If 'condition exists and returns nil, the shortcut will be ignored.")
 #+END_SRC
 
 
