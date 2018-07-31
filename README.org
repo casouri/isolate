@@ -46,16 +46,11 @@ Inspired by [[https://github.com/tslilc/siege-mode/blob/master/siege-mode.el][si
 
 ** How it works
 
-This is how it works:
-
-1. You tell isolate how is left side looks like, e.g. =[=.
-2. =isolate= /regognizes/ it as the left part of a pair, e.g. =[ & ]=.
-3. it complete the pair for you, (e.g. =]=.
    
-If you are adding, it adds the pair,
-if you are deleting, it searches for the pair 
-and delete it from the buffer.
-
+1. User input the left side of the pair,
+2. =isolate= completes the right size by looking up "rule book" (which defines pairs)
+3. =isolate= add/delete the pair
+   
 ** Recognize?
 
 Basically, =isolate= provides three ways to regognize a pair:
