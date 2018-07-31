@@ -77,10 +77,7 @@ HELLO -> ( HELLO )
 
 [[./img/isolate-add-2.gif]]
 
-**** An example for the second case
-
-
-***** Side node: segmentation
+**** A side node: segmentation
 
 When you separate your input into segements on the left,
 isolate inverse the order of them on the right.
@@ -90,6 +87,8 @@ The separator is "," by default.
 #+BEGIN_SRC
 ABC -> 1,2,3ABC -> 123ABC321
 #+END_SRC
+
+**** An example for the second case
 
 By inserting =<div>= on the left, isolate completes the html pair for you.
 
