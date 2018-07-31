@@ -273,11 +273,11 @@ surrounded-text
 
 ** [[https://github.com/tslilc/siege-mode][siege-mode]]
 
-|           | siege            | isolate                                                  |
-|-----------+------------------+----------------------------------------------------------|
-| extending | I'm nor familiar | specify major mode (and other) condition(s) in rule list |
-| regexp    | yes              | yes                                                      |
-| abilities | add              | add, change, delete                                      |
+|           | siege                    | isolate                                                  |
+|-----------+--------------------------+----------------------------------------------------------|
+| extending | I'm not familiar with it | specify major mode (and other) condition(s) in rule list |
+| regexp    | yes                      | yes                                                      |
+| abilities | add                      | add, change, delete                                      |
 
 * Customizaion
 
