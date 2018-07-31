@@ -5,6 +5,16 @@
 This package provides a powerful surrounding tool.
 It helps you to *add*, *delete* and *change* pairs.
 
+It is:
+
+- Powerful :: =isolate= can recognize complex input, for example, html tags.
+- Straight forward :: Each action (add/delete/change) has two variants:
+                      =quick= and =long=. =quick= takes one key like =(= and =long=
+                      takes a longer input like ~<div class="">~.
+
+- Easily extendable :: You can define new complex pairs easily by wrting regexp.
+
+
 Inspired by [[https://github.com/tslilc/siege-mode/blob/master/siege-mode.el][siege-mode]].
 
 \\
@@ -33,14 +43,7 @@ Inspired by [[https://github.com/tslilc/siege-mode/blob/master/siege-mode.el][si
   - [[#siege-mode][siege-mode]]
 - [[#contribution][Contribution]]
 
-* Why you want it
 
-- Powerful :: It can recognize complex input, for example, html tags.
-- Straight forward :: Each action (add/delete/change) has two variants:
-                      =quick= and =long=. =quick= takes one key like =(= and =long=
-                      takes a longer input like ~<div class="">~.
-
-- Easily extendable :: You can define new complex pairs easily by wrting regexp.
 
 * Introduction
 
