@@ -4,7 +4,6 @@
 
 This package provides a powerful surrounding tool.
 It helps you to *add*, *delete* and *change* pairs.
-
 It is:
 
 - Powerful :: =isolate= can recognize complex input, for example, html tags.
@@ -15,7 +14,7 @@ It is:
 - Easily extendable :: You can define new complex pairs easily by wrting regexp.
 
 
-Inspired by [[https://github.com/tslilc/siege-mode/blob/master/siege-mode.el][siege-mode]].
+Credit: Inspired by [[https://github.com/tslilc/siege-mode/blob/master/siege-mode.el][siege-mode]].
 
 \\
 
