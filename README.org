@@ -59,6 +59,18 @@ Basically, =isolate= provides three ways to regognize a pair:
 2. recognize pairs by regexp, e.g. regognize =<xxx>= as the left of a html tag, complete it with =</xxx>=.
 3. recognize pairs by a shortcut, e.g. =org-src= as a shortcut of =#+BEGIN_SRC= and =#+END_SRC=.
    
+*** Segmentation
+
+When you separate your input into segements on the left,
+isolate inverse the order of them on the right.
+
+The separator is "," by default.
+
+#+BEGIN_SRC 
+ABC -> 1,2,3ABC -> 123ABC321
+#+END_SRC
+
+This works for both adding and deleting.
 *** Add examples
 
 **** An example for the first case
@@ -167,19 +179,6 @@ HELLO
 [[./img/isolate-delete-3.gif]]
 
 
-** Segmentation
-
-Besides these, there is another feature called segementation.
-When you separate your input into segements on the left,
-isolate inverse the order of them on the right.
-
-The separator is ","
-
-#+BEGIN_SRC 
-ABC -> 1,2,3ABC -> 123ABC321
-#+END_SRC
-
-This works for both adding and deleting.
 
 ** You can extend it!
 
