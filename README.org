@@ -13,10 +13,10 @@ It is:
 
 - Easily extendable :: You can define new complex pairs easily by wrting regexp.
 
+\\
 
 Credit: Inspired by [[https://github.com/tslilc/siege-mode/blob/master/siege-mode.el][siege-mode]].
 
-\\
 
 [[./img/isolate.png]]
 
