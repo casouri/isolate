@@ -419,6 +419,18 @@ keys to longer strings, for example:
 ) -> "(, " (parans -> parens with space)
 #+END_SRC
 
+-----
+
+*Personalize it*
+
+Since normally you don't surround anything with =a=, =c=, =x=, etc,
+you can bind your personal shortcuts to them!
+
+How about binding =s= to =#+BEGIN_SRC= and =#+END_SRC=?
+
+-----
+
+
 The rule list is =isolate-quick-shortcut-list=,
 its default value is:
 
