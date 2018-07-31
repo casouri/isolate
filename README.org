@@ -273,7 +273,7 @@ surrounded-text
 
 ** [[https://github.com/tslilc/siege-mode][siege-mode]]
 
-|           | siege | isolate                                                  |
+|           | siege            | isolate                                                  |
 |-----------+------------------+----------------------------------------------------------|
 | extending | I'm nor familiar | specify major mode (and other) condition(s) in rule list |
 | regexp    | yes              | yes                                                      |
