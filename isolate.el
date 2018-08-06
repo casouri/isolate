@@ -465,18 +465,18 @@ Don't forget to reset to 1 when exit `isolate-delete-mode'.")
 Return t if match, nil if no match."
   (interactive "cEnter left segment")
   ;; match & delete
-  (if (isolate--search-pair
-       (isolate--translate-quick-shortcut
-        (char-to-string left-segment)))
-      (progn
-        (isolate--replace-with "" isolate--left-beg isolate--left-end)
-        (isolate--replace-with "" isolate--right-beg isolate--right-end)
-        t)
-    (message "No balanced match")
-    nil)
-  
-  ;; cleanup
-  (isolate--delete-cleanup-overlay))
+  (let ((result (if (isolate--search-pair
+                     (isolate--translate-quick-shortcut
+                      (char-to-string left-segment)))
+                    (progn
+                      (isolate--replace-with "" isolate--left-beg isolate--left-end)
+                      (isolate--replace-with "" isolate--right-beg isolate--right-end)
+                      t)
+                  (message "No balanced match")
+                  nil)))
+    ;; cleanup
+    (isolate--delete-cleanup-overlay)
+    result))
 
 ;;;;; Long delete
 
