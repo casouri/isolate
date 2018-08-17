@@ -403,7 +403,9 @@ It also disable evil."
         (setq isolate--evil
               (if (bound-and-true-p evil-mode)
                   (progn (evil-mode -1) t)
-                nil))
+                (if (bound-and-true-p evil-local-mode)
+                    (progn (evil-local-mode -1) t)
+                  nil)))
         (setq isolate--smartparens
               (if (bound-and-true-p smartparens-mode)
                   (progn (smartparens-mode -1) t)
