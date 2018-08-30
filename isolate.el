@@ -1,4 +1,4 @@
-;;; isolate.el --- Surrounding tool with flexable customizations.
+;;; isolate.el --- Surrounding tool with flexible customizations.
 
 ;; Author: Yuan Fu <casouri@gmail.com>
 ;; URL: https://github.com/casouri/isolate
