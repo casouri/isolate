@@ -8,7 +8,7 @@
 
 ;;; Commentary:
 ;; 
-;; This is a surrouding tool.
+;; This is a surrounding tool.
 ;; It features powerful and easy customization system.
 ;; You can create complex regexp rules easily.
 ;;
@@ -29,7 +29,7 @@
 (defcustom isolate-separator ","
   "The separator that splits left string into segments.
 It can be a regexp expression but I suggest to use a single character.
-By \"character\" I mean \"a string that has a legnth of 1\"."
+By \"character\" I mean \"a string that has a length of 1\"."
   :group 'isolate
   :type 'string)
 
@@ -125,7 +125,7 @@ Also don't forget regexp escapes.")
 (defvar isolate-setup-hook nil
   "This hook is ran after `isolate--add-setup'.
 Which moves the point to the left of the region
-and enters `evil-insert-state' if nessessary.")
+and enters `evil-insert-state' if necessary.")
 
 ;;;; Private
 
@@ -142,7 +142,7 @@ and enters `evil-insert-state' if nessessary.")
 (defun isolate--match-pair (left-segment pair-list &optional search)
   "Find matching left and right segment for LEFT-SEGMENT.
 Return a cons of (left . right).
-LEFT-SEGMENT is not everthing left to region,
+LEFT-SEGMENT is not everything left to region,
 but one of the segments separated by `isolate-separator'.
 
 PAIR-LIST is the list in which this function looks for match.
@@ -179,7 +179,7 @@ This function never returns nil."
 ;;;; Helper
 
 (defun isolate--translate-quick-shortcut (left-segment)
-  "Translate user input LEFT-SEGMENT if a predefined shorcut exists.
+  "Translate user input LEFT-SEGMENT if a predefined shortcut exists.
 Return LEFT-SEGMENT itself if not."
   (catch 'return
     (dolist (shortcut isolate-quick-shortcut-list)
@@ -215,13 +215,13 @@ Return LEFT-SEGMENT itself if not."
 
 ;;;; Fundamental helper
 
-(defmacro isolate--append (seq elt)
+(defsubst isolate--append (seq elt)
   "Append ELT to SEQ destructivly. This is a macro."
   `(if ,seq
        (nconc ,seq (list ,elt))
      (setq ,seq (list ,elt))))
 
-(defmacro isolate--push (elt seq)
+(defsubst isolate--push (elt seq)
   "Push ELT to SEQ destructivly. This is a macro."
   `(if ,seq
        (push ,elt ,seq)
