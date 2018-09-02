@@ -216,16 +216,16 @@ Return LEFT-SEGMENT itself if not."
 ;;;; Fundamental helper
 
 (defsubst isolate--append (seq elt)
-  "Append ELT to SEQ destructivly. This is a macro."
-  `(if ,seq
-       (nconc ,seq (list ,elt))
-     (setq ,seq (list ,elt))))
+  "Append ELT to SEQ destructively."
+  (if seq
+      (nconc seq (list elt))
+    (setq seq (list elt))))
 
 (defsubst isolate--push (elt seq)
-  "Push ELT to SEQ destructivly. This is a macro."
-  `(if ,seq
-       (push ,elt ,seq)
-     (setq ,seq (list ,elt))))
+  "Push ELT to SEQ destructively."
+  (if seq
+      (push elt seq)
+    (setq seq (list elt))))
 
 (defun isolate--replace-with (str start end)
   "Replace strings between START and END with STR.
