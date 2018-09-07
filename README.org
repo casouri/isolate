@@ -239,7 +239,7 @@ Thanks to @xuchunyang for this snippet.
 | C-c C-a | Go to beginning of left side |
 | C-c C-e | Go to end of left side       |
 | C-c C-c | Finish edit                  |
-| C-c q   | Abort edit                   |
+| C-c C-q | Abort edit                   |
 
 *** Long delete
 
