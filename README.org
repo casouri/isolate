@@ -282,12 +282,12 @@ surrounded-text
 
 ** [[https://github.com/emacs-evil/evil-surround][evil-surround]]
 
-|                          | evil-surround                   | isolate                                                  |
-|--------------------------+---------------------------------+----------------------------------------------------------|
-| requires evil            | yes                             | no                                                       |
-| fiddle with text objects | yes                             | no (straight forward!)                                   |
-| extending                | write hooks for each major mode | specify major mode (and other) condition(s) in rule list |
-| regexp                   | no                              | yes                                                      |
+|               | evil-surround                   | isolate                                                  |
+|---------------+---------------------------------+----------------------------------------------------------|
+| requires evil | yes                             | no                                                       |
+| text objects  | yes                             | no (but that means straight forward!)                    |
+| extending     | write hooks for each major mode | specify major mode (and other) condition(s) in rule list |
+| regexp        | no                              | yes                                                      |
 
 ** [[https://github.com/cute-jumper/embrace.el][embrace]]
 
