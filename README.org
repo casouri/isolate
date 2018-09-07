@@ -208,6 +208,31 @@ apply the change with =C-c C-c=
 
 If you use evil, I suggest binding quick commands to =s= operators
 and long commands to =S= operators.
+i.e. =s=, =S=, =ds=, =dS=, =cs=, =cS=.
+
+Note for non-evil users:
+
+Recently I'm trying to switch to emacs keybindings and really missed isolate in evil.
+If you are like my, try this snippet and you can invoke isolate with one key stroke
+when region is active:
+
+#+BEGIN_SRC emacs-lisp
+(defun activate-mark-hook@set-transient-map ()
+  (set-transient-map
+   (let ((map (make-sparse-keymap)))
+     (define-key map "s" #'isolate-quick-add)
+     (define-key map "S" #'isolate-long-add)
+     (define-key map "d" #'isolate-quick-delete)
+     (define-key map "D" #'isolate-long-delete)
+     (define-key map "c" #'isolate-quick-change)
+     (define-key map "C" #'isolate-long-change)
+     map)
+   #'region-active-p))
+
+(add-hook 'activate-mark-hook #'activate-mark-hook@set-transient-map)
+#+END_SRC
+
+Thanks to @xuchunyang for this snippet.
 
 *** Long add
 
