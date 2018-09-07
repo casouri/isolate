@@ -210,10 +210,10 @@ If you use evil, I suggest binding quick commands to =s= operators
 and long commands to =S= operators.
 i.e. =s=, =S=, =ds=, =dS=, =cs=, =cS=.
 
-Note for non-evil users:
+*Note for non-evil users:*
 
-Recently I'm trying to switch to emacs keybindings and really missed isolate in evil.
-If you are like my, try this snippet and you can invoke isolate with one key stroke
+Recently I'm trying to switch to emacs keybindings and really missed the fast keybindings of isolate in evil.
+If you are like me, try this snippet and you can invoke isolate with one key stroke
 when region is active:
 
 #+BEGIN_SRC emacs-lisp
