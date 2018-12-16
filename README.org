@@ -1,6 +1,8 @@
 #+TITLE: isolate.el
 
-\\
+#+BEGIN_EXPORT html
+<a href="https://melpa.org/#/isolate"><img alt="MELPA" src="https://melpa.org/packages/isolate-badge.svg"/></a>
+#+END_EXPORT
 
 This package provides a powerful surrounding tool.
 It helps you to *add*, *delete* and *change* pairs.
@@ -191,8 +193,7 @@ It's very easy!
 
 * Install
 
-=isolate= is not in melpa,
-you need to intall and load manually or by quelpa.
+Add [[https://melpa.org/#/getting-started][melpa]] to your package archives and =M-x package-install RET isolate RET=.
 
 * Usage
 
