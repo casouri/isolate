@@ -1,8 +1,8 @@
 #+TITLE: isolate.el
 
-#+BEGIN_EXPORT html
-<a href="https://melpa.org/#/isolate"><img alt="MELPA" src="https://melpa.org/packages/isolate-badge.svg"/></a>
-#+END_EXPORT
+
+#+HTML: <a href="https://melpa.org/#/isolate"><img alt="MELPA" src="https://melpa.org/packages/isolate-badge.svg"/></a>
+
 
 This package provides a powerful surrounding tool.
 It helps you to *add*, *delete* and *change* pairs.
