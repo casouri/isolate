@@ -4,7 +4,7 @@
 #+HTML: <a href="https://melpa.org/#/isolate"><img alt="MELPA" src="https://melpa.org/packages/isolate-badge.svg"/></a>
 #+HTML: <a href="https://stable.melpa.org/#/isolate"><img alt="MELPA Stable" src="https://stable.melpa.org/packages/isolate-badge.svg"/></a>
 
-//
+\\
 
 This package provides a powerful surrounding tool.
 It helps you to *add*, *delete* and *change* pairs.
