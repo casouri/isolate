@@ -220,22 +220,22 @@ If you are like me, try this snippet and you can invoke isolate with one key str
 when region is active:
 
 #+BEGIN_SRC emacs-lisp
-(defun activate-mark-hook@set-transient-map ()
-  (set-transient-map
-   (let ((map (make-sparse-keymap)))
-     (define-key map "s" #'isolate-quick-add)
-     (define-key map "S" #'isolate-long-add)
-     (define-key map "d" #'isolate-quick-delete)
-     (define-key map "D" #'isolate-long-delete)
-     (define-key map "c" #'isolate-quick-change)
-     (define-key map "C" #'isolate-long-change)
-     map)
-   #'region-active-p))
+(defconst my-transient-mode-map-alist
+  `((mark-active
+     ,@(let ((map (make-sparse-keymap)))
+         ;; isolate
+         (define-key map "s" #'isolate-quick-add)
+         (define-key map "S" #'isolate-long-add)
+         (define-key map "d" #'isolate-quick-delete)
+         (define-key map "D" #'isolate-long-delete)
+         (define-key map "c" #'isolate-quick-change)
+         (define-key map "C" #'isolate-long-change)
 
-(add-hook 'activate-mark-hook #'activate-mark-hook@set-transient-map)
+         map))))
+
+(add-to-list 'emulation-mode-map-alists
+             'my-transient-mode-map-alist t)
 #+END_SRC
-
-Thanks to @xuchunyang for this snippet.
 
 *** Long add
 
