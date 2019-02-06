@@ -220,7 +220,7 @@ If you are like me, try this snippet and you can invoke isolate with one key str
 when region is active:
 
 #+BEGIN_SRC emacs-lisp
-(defconst my-transient-mode-map-alist
+(defconst my-transient-mode-map-plist
   `((mark-active
      ,@(let ((map (make-sparse-keymap)))
          ;; isolate
@@ -233,8 +233,8 @@ when region is active:
 
          map))))
 
-(add-to-list 'emulation-mode-map-alists
-             'my-transient-mode-map-alist t)
+(add-to-list 'emulation-mode-map-plists
+             'my-transient-mode-map-plist t)
 #+END_SRC
 
 *** Long add
