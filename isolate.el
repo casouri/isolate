@@ -17,6 +17,7 @@
 ;;; Code:
 ;;
 
+(require 'subr-x)
 
 ;;; Custom
 
