@@ -52,73 +52,68 @@ By \"character\" I mean \"a string that has a length of 1\"."
   "Mark of end of right segments.")
 
 (defvar isolate-quick-shortcut-list
-  '(((from . "]") (to . "[, "))
-    ((from . ")") (to . "(, "))
-    ((from . "}") (to . "{, "))
-    ((from . ">") (to . "<, "))
-    )
+  '((:from "]" :to "[, ")
+    (:from ")" :to "(, ")
+    (:from "}" :to "{, ")
+    (:from ">" :to "<, "))
   "Shortcuts for `isolate-quick-xxx' functions.
 
 For example, by default \"]\" is mapped to \"[ \", etc.
 
-Each element is an alist representing a shortcut.
-Each shortcut have three possible keys: 'from, 'to and 'condition.
-'from and 'to are strings \(not regexp!\),
+Each element is an plist representing a shortcut.
+Each shortcut have three possible keys: :from, :to and :condition.
+:from and :to are strings \(not regexp\),
 
-'condition is a function that takes user input as argument.
-'condition is optional.
-If 'condition exists and returns nil, the shortcut will be ignored.")
+:condition is a function that takes user input as argument.
+:condition is optional.
+If :condition exists and returns nil, the shortcut will be ignored.")
 
 (defvar isolate-pair-list
-  '(((to-left . "`") (to-right . "'") (no-regexp . t) (condition . (lambda (_) (if (equal major-mode 'emacs-lisp-mode) t nil))))
-    ((to-left . "(") (to-right . ")"))
-    ((to-left . "[") (to-right . "]") (no-regexp . t))
-    ((to-left . "{") (to-right . "}"))
-    ((to-left . "<") (to-right . ">"))
-    ((from . "<\\([^ ]+\\).*>") (to-right . (lambda (left) (format "</%s>" (match-string 1 left)))))
-    ((to-left . "\\{begin}") (to-right . "\\{end}"))
-    ((from . "org-src") (to-left . "#+BEGIN_SRC\n") (to-right . "#+END_SRC\n") (no-regexp . t))
-    )
+  '((:to-left "`" :to-right  "'" :no-regexp t :condition (lambda (_) (if (equal major-mode 'emacs-lisp-mode) t nil)))
+    (:to-left "(" :to-right ")")
+    (:to-left "[" :to-right "]" :no-regexp t)
+    (:to-left "{" :to-right "}")
+    (:to-left "<" :to-right ">")
+    (:from "<\\([^ ]+\\).*>" :to-right (lambda (left) (format "</%s>" (match-string 1 left))))
+    (:to-left "\\{begin}" :to-right "\\{end}")
+    (:from "org-src" :to-left "#+BEGIN_SRC\n" :to-right "#+END_SRC\n" :no-regexp t))
   "Matching pairs.
-Each element is an alist with five possible keys: 'from, 'to-left, to-right, no-regexp and condition.
-Only ('from or 'to-left) and 'to-right are required.
+Each element is an plist with five possible keys: :from, :to-left, :to-right, :no-regexp and :condition.
+Only (:from or :to-left) and :to-right are required.
 
-'right is required, one of 'from and 'to-left is required,
-'condition is optional.
-
-1. If only 'to-left, and it equal to user input,
+1. If only :to-left, and it equal to user input,
 and matches and condition passes,
-'to-left is used as left of pair,
-'to-right is used as right of pair.
+:to-left is used as left of pair,
+:to-right is used as right of pair.
 
-2. If only 'from, and the regexp of 'from matches user input,
+2. If only :from, and the regexp of :from matches user input,
 user-input is used as left of pair
-and 'to-right is used as right of pair.
+and :to-right is used as right of pair.
 
-3. If both 'from and 'to-left exists,
-'from as regexp is used to match user-input,
-if it matches, 'to-left is used as left of pair
-and 'to-right is used as right of pair.
+3. If both :from and :to-left exists,
+:from as regexp is used to match user-input,
+if it matches, :to-left is used as left of pair
+and :to-right is used as right of pair.
 
-In addition, 'to-left and 'to-right can be a function
+In addition, :to-left and :to-right can be a function
 that takes user input as argument and return a string.
 
-If they are functions, and you have a regexp 'from,
+If they are functions, and you have a regexp :from,
 you can use (match-string num user-input) to get
 regexp matched groups.
 
-'condition, if exist, should be a function
+:condition, if exist, should be a function
 that takes user input as argument and return a boolean.
 You can use it to check major modes, etc.
 
-'no-regexp only affects delete commands,
+:no-regexp only affects delete commands,
 if you want to search the matched pair plainly by text
-rather than by regexp, add \(no-regexp . t\).
+rather than by regexp, add :no-regexp t.
 
 This is especially important for pairs that contains
 regexp keywords such as [, \\, +, etc.
 
-A word of 'from:
+A word of :from:
 \"^\" and \"$\" are added automatically to from before matching.
 Also don't forget regexp escapes.")
 
@@ -153,11 +148,11 @@ Return (LEFT-SEGMENT . LEFT-SEGMENT) if nothing matches.
 This function never returns nil."
   (catch 'return
     (dolist (pair pair-list)
-      (let* ((from (alist-get 'from pair))
-             (to-left (alist-get 'to-left pair))
-             (to-right (alist-get 'to-right pair))
-             (condition (alist-get 'condition pair))
-             (no-regexp (alist-get 'no-regexp pair))
+      (let* ((from (plist-get pair :from))
+             (to-left (plist-get pair :to-left))
+             (to-right (plist-get pair :to-right))
+             (condition (plist-get pair :condition))
+             (no-regexp (plist-get pair :no-regexp))
              (quote-func (if (and search no-regexp) 'regexp-quote 'eval)))
         (when (and (or (not condition) ; no condition
                        (and condition (funcall condition left-segment))) ; condition passes
@@ -183,13 +178,13 @@ This function never returns nil."
 Return LEFT-SEGMENT itself if not."
   (catch 'return
     (dolist (shortcut isolate-quick-shortcut-list)
-      (let ((from (alist-get 'from shortcut))
-            (to (alist-get 'to shortcut))
-            (condition (alist-get 'condition shortcut)))
+      (let ((from (plist-get shortcut :from))
+            (to (plist-get shortcut :to))
+            (condition (plist-get shortcut :condition)))
         (when (and (equal from left-segment)
-                 (or (not condition)
-                     (funcall condition left-segment)))
-            (throw 'return to))))
+                   (or (not condition)
+                       (funcall condition left-segment)))
+          (throw 'return to))))
     left-segment))
 
 (defmacro isolate--setup-marker (left-beg left-end right-beg righ-end)
@@ -432,17 +427,17 @@ It also disable evil."
 ;;;; Variable
 
 (defvar isolate-delete-extended-pair-list
-  '(((to-left . "\\") (to-right . "\\") (no-regexp . t))
-    ((to-left . "+") (to-right . "+") (no-regexp . t))
-    ((to-left . ".") (to-right . ".") (no-regexp . t))
-    ((to-left . "*") (to-right . "*") (no-regexp . t))
-    ((to-left . "?") (to-right . "?") (no-regexp . t))
-    ((to-left . "^") (to-right . "^") (no-regexp . t))
-    ((to-left . "$") (to-right . "$") (no-regexp . t))
-    ((from . "<t>") (to-left . "<[^/]+?>") (to-right . "</.+?>"))
-    ((from . "<\\([^ ]+\\)[^<>]*>")
-     (to-left . (lambda (user-input) (format "<%s *.*?>" (match-string 1 user-input))))
-     (to-right . (lambda (user-input) (format "< *?/%s *?>" (match-string 1 user-input))))))
+  '((:to-left "\\" :to-right "\\" :no-regexp t)
+    (:to-left "+" :to-right "+" :no-regexp t)
+    (:to-left "." :to-right "." :no-regexp t)
+    (:to-left "*" :to-right "*" :no-regexp t)
+    (:to-left "?" :to-right "?" :no-regexp t)
+    (:to-left "^" :to-right "^" :no-regexp t)
+    (:to-left "$" :to-right "$" :no-regexp t)
+    (:from "<t>" :to-left "<[^/]+?>" :to-right "</.+?>")
+    (:from "<\\([^ ]+\\)[^<>]*>"
+           :to-left (lambda (user-input) (format "<%s *.*?>" (match-string 1 user-input)))
+           :to-right (lambda (user-input) (format "< *?/%s *?>" (match-string 1 user-input)))))
   "Rule list.
 Detail see `isolate-pair-list'.")
 
